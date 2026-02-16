@@ -1,20 +1,19 @@
 # -Path: "PokeRotom/server/Dockerfile"
-FROM node:22-alpine AS base
+FROM node:22-alpine
 
-ENV PNPM_HOME="/pnpm"
-ENV PATH="$PNPM_HOME:$PATH"
-RUN corepack enable
+RUN npm i -g pnpm
 
-FROM base AS build
-COPY . /usr/src/app
 WORKDIR /usr/src/app
-RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
-RUN pnpm run build
 
-FROM base
-COPY --from=build /usr/src/app/node_modules /usr/src/app/node_modules
-COPY --from=build /usr/src/app/dist /usr/src/app/dist
-WORKDIR /usr/src/app
+COPY package*.json ./
+COPY pnpm-lock.yaml ./
+
+RUN pnpm install
+
+COPY . .
 
 EXPOSE 3000
-CMD [ "node", "dist/main" ]
+
+RUN ["pnpm", "build"]
+
+CMD ["node", "--max-old-space-size=512", "dist/main"]

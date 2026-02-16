@@ -1,18 +1,17 @@
 # -Path: "PokeRotom/client/Dockerfile"
-FROM node:22-alpine AS base
+FROM node:22-alpine
 
-ENV PNPM_HOME="/pnpm"
-ENV PATH="$PNPM_HOME:$PATH"
-RUN corepack enable
+RUN npm i -g pnpm
 
-FROM base AS build
-COPY . /usr/src/app
 WORKDIR /usr/src/app
-RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
-RUN pnpm run build
 
-FROM nginx:alpine
-COPY --from=build /usr/src/app/dist /usr/share/nginx/html
+COPY package*.json ./
+COPY pnpm-lock.yaml ./
 
-EXPOSE 80
-CMD ["nginx", "-g", "daemon off;"]
+RUN pnpm install
+
+COPY . .
+
+EXPOSE 5173
+
+CMD ["pnpm", "dev"]

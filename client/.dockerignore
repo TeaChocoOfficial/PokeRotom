@@ -1,7 +1,6 @@
 # -Path: "PokeRotom/client/.dockerignore"
 node_modules
 dist
-pnpm-lock.yaml
 .git
 .gitignore
 README.md
