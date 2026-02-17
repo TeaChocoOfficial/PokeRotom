@@ -1,4 +1,4 @@
-//-Path: "PokeRotom/client/src/pages/game/stores/PokedexDetailPage.tsx"
+//-Path: "PokeRotom/client/src/pages/game/stores/PokedexPkmDetailPage.tsx"
 import {
     Zap,
     Scale,
@@ -10,30 +10,30 @@ import {
     BrainCircuit,
 } from 'lucide-react';
 import { useQuery } from '@apollo/client/react';
+import PokeApi from '../../../../../types/pokeApi';
+import PkmStat from '../../../../../hooks/pokemonStat';
 import { useParams, useNavigate } from 'react-router-dom';
-import { GET_POKEMON_DETAIL } from '../../../graphQL/pokeApi';
-import type { PokemonDetailData } from '../../../types/pokeApi';
+import { GET_POKEMON_DETAIL } from '../../../../../graphQL/pokeApi';
 
-export default function PokedexDetailPage() {
+export default function PokedexPkmDetailPage() {
     const { id } = useParams();
     const navigate = useNavigate();
 
-    const { data, loading, error } = useQuery<PokemonDetailData>(
+    const { data, loading, error } = useQuery<PokeApi.PokemonDetailData>(
         GET_POKEMON_DETAIL,
         {
             variables: { id: Number(id) },
         },
     );
 
-    if (loading) {
+    if (loading)
         return (
             <div className="min-h-[60vh] flex items-center justify-center">
                 <div className="w-16 h-16 border-4 border-red-500/30 border-t-red-600 rounded-full animate-spin" />
             </div>
         );
-    }
 
-    if (error || !data?.pokemon_v2_pokemon_by_pk) {
+    if (error || !data?.pokemon_v2_pokemon_by_pk)
         return (
             <div className="max-w-7xl mx-auto px-4 py-8 text-center">
                 <div className="bg-red-500/10 border border-red-500/20 text-red-500 p-8 rounded-3xl">
@@ -52,49 +52,43 @@ export default function PokedexDetailPage() {
                 </div>
             </div>
         );
-    }
 
-    const pokemon = data.pokemon_v2_pokemon_by_pk;
-    const rawSprites = pokemon.pokemon_v2_pokemonsprites[0]?.sprites;
-    const sprites =
-        typeof rawSprites === 'string' ? JSON.parse(rawSprites) : rawSprites;
+    const pokemon = PokeApi.toPokemonDetail(data.pokemon_v2_pokemon_by_pk);
     const imageUrl =
-        sprites?.other?.['official-artwork']?.front_default ||
-        sprites?.front_default ||
-        '';
+        pokemon.sprites?.other?.['official-artwork']?.front_default ?? '';
 
-    const getStatIcon = (name: string) => {
+    const getStatIcon = (name: PkmStat.STATS_KEYS) => {
         switch (name) {
-            case 'hp':
+            case PkmStat.STATS_KEYS.HP:
                 return <Heart size={16} />;
-            case 'attack':
+            case PkmStat.STATS_KEYS.ATTACK:
                 return <Swords size={16} />;
-            case 'defense':
+            case PkmStat.STATS_KEYS.DEFENSE:
                 return <Shield size={16} />;
-            case 'special-attack':
+            case PkmStat.STATS_KEYS.SP_ATTACK:
                 return <Zap size={16} />;
-            case 'special-defense':
+            case PkmStat.STATS_KEYS.SP_DEFENSE:
                 return <BrainCircuit size={16} />;
-            case 'speed':
+            case PkmStat.STATS_KEYS.SPEED:
                 return <Zap size={16} />;
             default:
                 return null;
         }
     };
 
-    const getStatColor = (name: string) => {
+    const getStatColor = (name: PkmStat.STATS_KEYS) => {
         switch (name) {
-            case 'hp':
+            case PkmStat.STATS_KEYS.HP:
                 return 'bg-rose-500';
-            case 'attack':
+            case PkmStat.STATS_KEYS.ATTACK:
                 return 'bg-orange-500';
-            case 'defense':
+            case PkmStat.STATS_KEYS.DEFENSE:
                 return 'bg-yellow-500';
-            case 'special-attack':
+            case PkmStat.STATS_KEYS.SP_ATTACK:
                 return 'bg-sky-500';
-            case 'special-defense':
+            case PkmStat.STATS_KEYS.SP_DEFENSE:
                 return 'bg-emerald-500';
-            case 'speed':
+            case PkmStat.STATS_KEYS.SPEED:
                 return 'bg-pink-500';
             default:
                 return 'bg-slate-500';
@@ -133,15 +127,15 @@ export default function PokedexDetailPage() {
 
                     {/* Types */}
                     <div className="flex gap-3 justify-center mt-6">
-                        {pokemon.pokemon_v2_pokemontypes?.map((t: any) => (
+                        {pokemon.types?.map((type) => (
                             <span
-                                key={t.pokemon_v2_type.name}
-                                className={`px-6 py-2 rounded-2xl text-sm font-black uppercase tracking-[0.2em] shadow-lg border-b-4 border-black/20 text-white ${t.pokemon_v2_type.name}`}
+                                key={type}
+                                className={`px-6 py-2 rounded-2xl text-sm font-black uppercase tracking-[0.2em] shadow-lg border-b-4 border-black/20 text-white ${type}`}
                                 style={{
-                                    backgroundColor: `var(--type-${t.pokemon_v2_type.name})`,
+                                    backgroundColor: `var(--type-${type})`,
                                 }}
                             >
-                                {t.pokemon_v2_type.name}
+                                {type}
                             </span>
                         ))}
                     </div>
@@ -151,17 +145,13 @@ export default function PokedexDetailPage() {
                 <div className="space-y-8">
                     <div>
                         <span className="text-red-500 font-mono text-sm tracking-widest uppercase">
-                            Generation{' '}
-                            {pokemon.pokemon_v2_pokemonspecy?.generation_id}
+                            Generation {pokemon.species}
                         </span>
                         <h1 className="text-6xl font-black capitalize text-slate-900 dark:text-white mt-1">
                             {pokemon.name}
                         </h1>
                         <p className="mt-4 text-slate-500 dark:text-slate-400 leading-relaxed text-lg">
-                            {pokemon.pokemon_v2_pokemonspecy?.pokemon_v2_pokemonspeciesflavortexts[0]?.flavor_text.replace(
-                                /\f/g,
-                                ' ',
-                            )}
+                            {pokemon.species?.replace(/\f/g, ' ')}
                         </p>
                     </div>
 
@@ -191,35 +181,31 @@ export default function PokedexDetailPage() {
                             Base Stats
                         </h3>
                         <div className="space-y-4">
-                            {pokemon.pokemon_v2_pokemonstats?.map((s: any) => (
-                                <div
-                                    key={s.pokemon_v2_stat.name}
-                                    className="space-y-1.5"
-                                >
-                                    <div className="flex justify-between items-center text-xs font-bold uppercase tracking-wider">
-                                        <div className="flex items-center gap-2 text-slate-500">
-                                            {getStatIcon(
-                                                s.pokemon_v2_stat.name,
-                                            )}
-                                            {s.pokemon_v2_stat.name.replace(
-                                                '-',
-                                                ' ',
-                                            )}
+                            {Object.keys(pokemon.stats ?? {}).map((stat) => {
+                                const key = stat as PkmStat.STATS_KEYS;
+                                const statValue = pokemon.stats?.[key] ?? 0;
+                                return (
+                                    <div key={key} className="space-y-1.5">
+                                        <div className="flex justify-between items-center text-xs font-bold uppercase tracking-wider">
+                                            <div className="flex items-center gap-2 text-slate-500">
+                                                {getStatIcon(key)}
+                                                {key.replace('-', ' ')}
+                                            </div>
+                                            <span className="text-slate-900 dark:text-white">
+                                                {statValue}
+                                            </span>
                                         </div>
-                                        <span className="text-slate-900 dark:text-white">
-                                            {s.base_stat}
-                                        </span>
+                                        <div className="h-2 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+                                            <div
+                                                className={`h-full rounded-full transition-all duration-1000 ${getStatColor(key)}`}
+                                                style={{
+                                                    width: `${Math.min(100, (statValue / 255) * 100)}%`,
+                                                }}
+                                            />
+                                        </div>
                                     </div>
-                                    <div className="h-2 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
-                                        <div
-                                            className={`h-full rounded-full transition-all duration-1000 ${getStatColor(s.pokemon_v2_stat.name)}`}
-                                            style={{
-                                                width: `${Math.min(100, (s.base_stat / 255) * 100)}%`,
-                                            }}
-                                        />
-                                    </div>
-                                </div>
-                            ))}
+                                );
+                            })}
                         </div>
                     </div>
                 </div>

@@ -1,6 +1,6 @@
 //-Path: "PokeRotom/client/src/api/.ts"
 import serverRest from './api';
-import type { Pokemon } from '../types/pokemon';
+import type { PokemonDB } from '../types/pokemon';
 
 export const pokemonAPI = {
     /** จับโปเกมอนแล้วบันทึกลง DB */
@@ -8,25 +8,25 @@ export const pokemonAPI = {
         name: string;
         height: number;
         weight: number;
-        spriteUrl: string;
+        img: string;
         pokemonId: number;
-    }): Promise<Pokemon> {
+    }): Promise<PokemonDB> {
         const response = await serverRest.post(`pokemon/catch`, pokemonData);
         return response.data;
     },
     /** ดึงโปเกมอนทั้งหมด */
-    async getAll(): Promise<Pokemon[]> {
+    async getAll(): Promise<PokemonDB[]> {
         const response = await serverRest.get(`pokemon`);
         return response.data;
     },
 
     /** ดึงโปเกมอนในทีม (Party) */
-    async getPokemons(): Promise<Pokemon[]> {
+    async getPokemons(): Promise<PokemonDB[]> {
         const response = await serverRest.get(`pokemon/party`);
         return response.data;
     },
     /** ดึงโปเกมอนใน PC */
-    async getPC(): Promise<Pokemon[]> {
+    async getPC(): Promise<PokemonDB[]> {
         const response = await serverRest.get(`pokemon/pc`);
         return response.data;
     },
@@ -35,7 +35,7 @@ export const pokemonAPI = {
     async updatePokemonsStatus(
         pokemonDocId: string,
         isInParty: boolean,
-    ): Promise<Pokemon | null> {
+    ): Promise<PokemonDB | null> {
         const response = await serverRest.patch(
             `pokemon/${pokemonDocId}/party`,
             {
@@ -48,7 +48,7 @@ export const pokemonAPI = {
     async updateNickname(
         pokemonDocId: string,
         nickname: string,
-    ): Promise<Pokemon | null> {
+    ): Promise<PokemonDB | null> {
         const response = await serverRest.patch(
             `pokemon/${pokemonDocId}/nickname`,
             {
@@ -58,7 +58,7 @@ export const pokemonAPI = {
         return response.data;
     },
     /** ปล่อยโปเกมอน */
-    async release(pokemonDocId: string): Promise<Pokemon | null> {
+    async release(pokemonDocId: string): Promise<PokemonDB | null> {
         const response = await serverRest.delete(`pokemon/${pokemonDocId}`);
         return response.data;
     },

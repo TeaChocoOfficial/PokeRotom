@@ -138,7 +138,7 @@ export default function WildPage() {
 
         // Animate for Rotom Ball
         if (selectedBallId === 0 && selectedBall?.quantity > 0) {
-            setThrownBallImg(selectedBall.img || selectedBall.icon || '');
+            setThrownBallImg(selectedBall.img || '');
             setIsThrowing(true);
             setTimeout(() => setIsThrowing(false), 800);
         }
@@ -163,7 +163,7 @@ export default function WildPage() {
         )
             return;
 
-        setThrownBallImg(selectedBall.img || selectedBall.icon || '');
+        setThrownBallImg(selectedBall.img || '');
         setIsThrowing(true);
         setTimeout(() => setIsThrowing(false), 800);
 
@@ -357,15 +357,11 @@ export default function WildPage() {
                                 >
                                     <div className="relative w-12 h-12 flex items-center justify-center">
                                         <span className="text-3xl relative z-10 group-hover:scale-110 transition-transform">
-                                            {ball.img ? (
-                                                <img
-                                                    src={ball.img}
-                                                    alt={ball.name}
-                                                    className="w-10 h-10 object-contain"
-                                                />
-                                            ) : (
-                                                ball.icon
-                                            )}
+                                            <img
+                                                src={ball.img}
+                                                alt={ball.name}
+                                                className="w-10 h-10 object-contain"
+                                            />
                                         </span>
                                         {selectedBallId === ball.id && (
                                             <div className="absolute inset-0 bg-white/20 blur-xl rounded-full animate-pulse" />

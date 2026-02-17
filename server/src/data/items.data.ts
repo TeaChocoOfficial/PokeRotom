@@ -1,17 +1,12 @@
 //-Path: "PokeRotom/server/src/inventory/items.data.ts"
+import { ItemDto } from 'src/inventory/dto/item.dto';
 import { EnvConfig } from 'src/secure/dto/secure.dto';
 
-export interface Item {
-    id: number;
-    name: string;
-    category: 'ball' | 'medicine' | 'key' | 'berry';
-    price: number;
-    icon?: string;
-    img?: string;
-    desc: string;
-}
+export function getAllItems(envConfig: EnvConfig): ItemDto[] {
+    const clientUrl = (path: string) => envConfig.CLIENT_URL + path;
+    const githubusercontentUrl = (name: string) =>
+        `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/${name}.png`;
 
-export function getAllItems(envConfig: EnvConfig): Item[] {
     return [
         // Poké Balls
         {
@@ -19,7 +14,7 @@ export function getAllItems(envConfig: EnvConfig): Item[] {
             name: 'Rotom Ball',
             category: 'ball',
             price: 100,
-            img: envConfig.CLIENT_URL + '/rotom ball.svg',
+            img: clientUrl('/rotom ball.svg'),
             desc: 'ใช้จับโปเกมอนป่า',
         },
         {
@@ -27,7 +22,7 @@ export function getAllItems(envConfig: EnvConfig): Item[] {
             name: 'Poké Ball',
             category: 'ball',
             price: 200,
-            icon: '🔴',
+            img: githubusercontentUrl('poke-ball'),
             desc: 'ใช้จับโปเกมอนป่า',
         },
         {
@@ -35,7 +30,7 @@ export function getAllItems(envConfig: EnvConfig): Item[] {
             name: 'Great Ball',
             category: 'ball',
             price: 600,
-            icon: '🔵',
+            img: githubusercontentUrl('great-ball'),
             desc: 'มีอัตราจับสูงกว่า Poké Ball',
         },
         {
@@ -43,7 +38,7 @@ export function getAllItems(envConfig: EnvConfig): Item[] {
             name: 'Ultra Ball',
             category: 'ball',
             price: 1200,
-            icon: '🟡',
+            img: githubusercontentUrl('ultra-ball'),
             desc: 'มีอัตราจับสูงมาก',
         },
         {
@@ -51,7 +46,7 @@ export function getAllItems(envConfig: EnvConfig): Item[] {
             name: 'Master Ball',
             category: 'ball',
             price: 10000,
-            icon: '🟣',
+            img: githubusercontentUrl('master-ball'),
             desc: 'จับได้ทุกตัวอย่างแน่นอน',
         },
 
@@ -61,7 +56,7 @@ export function getAllItems(envConfig: EnvConfig): Item[] {
             name: 'Potion',
             category: 'medicine',
             price: 300,
-            icon: '💊',
+            img: githubusercontentUrl('potion'),
             desc: 'ฟื้นฟู HP 20 แต้ม',
         },
         {
@@ -69,7 +64,7 @@ export function getAllItems(envConfig: EnvConfig): Item[] {
             name: 'Super Potion',
             category: 'medicine',
             price: 700,
-            icon: '💉',
+            img: githubusercontentUrl('super-potion'),
             desc: 'ฟื้นฟู HP 50 แต้ม',
         },
         {
@@ -77,7 +72,7 @@ export function getAllItems(envConfig: EnvConfig): Item[] {
             name: 'Hyper Potion',
             category: 'medicine',
             price: 1200,
-            icon: '🧪',
+            img: githubusercontentUrl('hyper-potion'),
             desc: 'ฟื้นฟู HP 200 แต้ม',
         },
         {
@@ -85,7 +80,7 @@ export function getAllItems(envConfig: EnvConfig): Item[] {
             name: 'Revive',
             category: 'medicine',
             price: 1500,
-            icon: '⭐',
+            img: githubusercontentUrl('revive'),
             desc: 'ฟื้นฟูโปเกมอนที่หมดแรง',
         },
 
@@ -95,7 +90,7 @@ export function getAllItems(envConfig: EnvConfig): Item[] {
             name: 'Rare Candy',
             category: 'key',
             price: 4800,
-            icon: '🍬',
+            img: githubusercontentUrl('rare-candy'),
             desc: 'เพิ่มเลเวลโปเกมอน 1 เลเวล',
         },
         {
@@ -103,7 +98,7 @@ export function getAllItems(envConfig: EnvConfig): Item[] {
             name: 'Rotom Phone',
             category: 'key',
             price: 0,
-            icon: '📱',
+            img: clientUrl('rotom phone'),
             desc: 'โทรศัพท์อเนกประสงค์',
         },
         {
@@ -111,7 +106,7 @@ export function getAllItems(envConfig: EnvConfig): Item[] {
             name: 'Bicycle',
             category: 'key',
             price: 50000,
-            icon: '🚲',
+            img: clientUrl('bicycle'),
             desc: 'จักรยานสำหรับเดินทางเร็ว',
         },
 
@@ -121,7 +116,7 @@ export function getAllItems(envConfig: EnvConfig): Item[] {
             name: 'Oran Berry',
             category: 'berry',
             price: 100,
-            icon: '🫐',
+            img: githubusercontentUrl('oran-berry'),
             desc: 'ฟื้นฟู HP 10 แต้ม',
         },
         {
@@ -129,7 +124,7 @@ export function getAllItems(envConfig: EnvConfig): Item[] {
             name: 'Sitrus Berry',
             category: 'berry',
             price: 400,
-            icon: '🍊',
+            img: githubusercontentUrl('sitrus-berry'),
             desc: 'ฟื้นฟู HP จำนวนหนึ่ง',
         },
         {
@@ -137,7 +132,7 @@ export function getAllItems(envConfig: EnvConfig): Item[] {
             name: 'Lum Berry',
             category: 'berry',
             price: 600,
-            icon: '🍇',
+            img: githubusercontentUrl('lum-berry'),
             desc: 'รักษาอาการผิดปกติทุกอย่าง',
         },
     ];

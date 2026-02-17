@@ -3,23 +3,59 @@ import {
     PokemonDto,
     UpdatePartyDto,
     UpdateNicknameDto,
+    CatchPokemonDto,
 } from './dto/pokemon.dto';
 import { Model } from 'mongoose';
 import { nameDB } from 'src/hooks/mongodb';
 import { InjectModel } from '@nestjs/mongoose';
+import { UserService } from 'src/user/user.service';
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { Pokemon, PokemonDocument } from './schemas/pokemon.schema';
 
 @Injectable()
 export class PokemonService {
     constructor(
+        private readonly userService: UserService,
         @InjectModel(Pokemon.name, nameDB)
         private readonly pokemonModel: Model<PokemonDocument>,
     ) {}
 
     /** จับโปเกมอนแล้วบันทึกลง DB */
-    async catchPokemon(pokemonDto: PokemonDto): Promise<PokemonDocument> {
-        const createdPokemon = new this.pokemonModel(pokemonDto);
+    async catchPokemon(pokemonDto: CatchPokemonDto): Promise<PokemonDocument> {
+        const user = await this.userService.findByUid(pokemonDto.ownerUid);
+        if (!user) throw new BadRequestException('User not found');
+
+        const currentParty = await this.findParty(user.uid);
+        const isInParty = currentParty.length < 6;
+        const index = isInParty ? currentParty.length : -1;
+
+        const ivHp = Math.floor(Math.random() * 32);
+        const ivAtk = Math.floor(Math.random() * 32);
+        const ivDef = Math.floor(Math.random() * 32);
+        const ivSpAtk = Math.floor(Math.random() * 32);
+        const ivSpDef = Math.floor(Math.random() * 32);
+        const ivSpd = Math.floor(Math.random() * 32);
+
+        const newPokemon: PokemonDto = {
+            pkmId: pokemonDto.pkmId,
+            ownerUid: pokemonDto.ownerUid,
+            name: pokemonDto.name,
+            img: pokemonDto.img,
+            isInParty: isInParty,
+            nickname: '',
+            index: index,
+            lv: pokemonDto.lv,
+            exp: 0,
+            ivs: {
+                hp: ivHp,
+                atk: ivAtk,
+                def: ivDef,
+                spAtk: ivSpAtk,
+                spDef: ivSpDef,
+                spd: ivSpd,
+            },
+        };
+        const createdPokemon = new this.pokemonModel(newPokemon);
         return createdPokemon.save();
     }
 

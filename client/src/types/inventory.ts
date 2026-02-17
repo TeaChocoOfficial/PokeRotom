@@ -5,11 +5,12 @@ export type ItemCategory = 'ball' | 'medicine' | 'key' | 'berry';
 export interface Item {
     id: number;
     name: string;
-    category: ItemCategory;
     price: number;
-    icon?: string;
-    img?: string;
+    category?: string;
     desc: string;
+    img?: string;
+    effect?: string;
+    shortEffect?: string;
 }
 
 export interface InventoryItem extends Item {

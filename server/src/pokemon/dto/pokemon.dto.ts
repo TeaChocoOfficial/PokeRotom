@@ -29,44 +29,59 @@ export class IVsDto {
     spd: number;
 }
 
-export class PokemonDto {
+export class CatchPokemonDto {
     @IsNumber()
     pkmId: number;
 
     @IsNumber()
-    @IsOptional()
-    ownerUid?: number;
-
-    @IsBoolean()
-    @IsOptional()
-    isInParty?: boolean;
+    ownerUid: number;
 
     @IsString()
     name: string;
 
     @IsString()
-    spriteUrl: string;
+    img: string;
+
+    @IsNumber()
+    lv: number;
+}
+
+export class PokemonDto {
+    @IsNumber()
+    pkmId: number;
+
+    @IsNumber()
+    ownerUid: number;
+
+    @IsBoolean()
+    isInParty: boolean;
+
+    @IsString()
+    name: string;
+
+    @IsString()
+    img: string;
 
     @IsString()
     @IsOptional()
-    nickname?: string;
+    nickname: string;
 
     @IsNumber()
     @IsOptional()
-    lv?: number;
+    lv: number;
 
     @IsNumber()
     @IsOptional()
-    exp?: number;
+    exp: number;
 
     @IsNumber()
     @IsOptional()
-    index?: number;
+    index: number;
 
     @IsOptional()
     @ValidateNested()
     @Type(() => IVsDto)
-    ivs?: IVsDto;
+    ivs: IVsDto;
 }
 
 export class UpdatePartyDto {

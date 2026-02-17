@@ -1,12 +1,13 @@
 //-Path: "PokeRotom/client/src/pages/game/stores/PokemonDetailPage.tsx"
-import { useQuery } from '@apollo/client/react';
 import { useEffect, useState } from 'react';
-import type { Pokemon } from '../../../types/pokemon';
+import PokeApi from '../../../../types/pokeApi';
+import { useQuery } from '@apollo/client/react';
+import PkmCalc from '../../../../hooks/pokemonStat';
+import PkmStat from '../../../../hooks/pokemonStat';
 import { useParams, useNavigate } from 'react-router-dom';
-import type { PokemonDetailData } from '../../../types/pokeApi';
-import { usePokemonStore } from '../../../stores/pokemonStore';
-import { GET_POKEMON_DETAIL } from '../../../graphQL/pokeApi';
-import PkmCalc from '../../../hooks/pokemonCalculator';
+import type { PokemonDB } from '../../../../types/pokemon';
+import { GET_POKEMON_DETAIL } from '../../../../graphQL/pokeApi';
+import { usePokemonStore } from '../../../../stores/pokemonStore';
 import { ArrowLeft, Swords, Activity, Zap, Shield, Heart } from 'lucide-react';
 
 /** คำนวณ max exp ตาม lv */
@@ -17,7 +18,7 @@ export default function PokemonDetailPage() {
     const navigate = useNavigate();
     const { pc, party, pcFetched, fetchPokemons, partyFetched } =
         usePokemonStore();
-    const [pokemon, setPokemon] = useState<Pokemon | null>(null);
+    const [pokemon, setPokemon] = useState<PokemonDB | null>(null);
 
     useEffect(() => {
         if (!partyFetched || !pcFetched) fetchPokemons();
@@ -31,7 +32,7 @@ export default function PokemonDetailPage() {
         }
     }, [id, party, pc]);
 
-    const { data, loading: pokeLoading } = useQuery<PokemonDetailData>(
+    const { data, loading: pokeLoading } = useQuery<PokeApi.PokemonDetailData>(
         GET_POKEMON_DETAIL,
         {
             variables: { id: pokemon?.pkmId },
@@ -47,22 +48,19 @@ export default function PokemonDetailPage() {
             </div>
         );
 
-    const baseStats = (
+    const baseStats: PkmStat.STATS_TYPE = (
         data.pokemon_v2_pokemon_by_pk.pokemon_v2_pokemonstats || []
-    ).reduce(
-        (acc: any, stat: any) => {
-            const name = stat.pokemon_v2_stat.name;
-            const value = stat.base_stat;
-            if (name === 'hp') acc.hp = value;
-            if (name === 'attack') acc.atk = value;
-            if (name === 'defense') acc.def = value;
-            if (name === 'special-attack') acc.spAtk = value;
-            if (name === 'special-defense') acc.spDef = value;
-            if (name === 'speed') acc.spd = value;
-            return acc;
-        },
-        { hp: 0, atk: 0, def: 0, spAtk: 0, spDef: 0, spd: 0 },
-    ) || { hp: 0, atk: 0, def: 0, spAtk: 0, spDef: 0, spd: 0 };
+    ).reduce((acc: PkmStat.STATS_TYPE, stat: PokeApi.PokemonStat) => {
+        const name = stat.pokemon_v2_stat.name;
+        const value = stat.base_stat;
+        if (name === PkmStat.STATS_KEYS.HP) acc.hp = value;
+        if (name === PkmStat.STATS_KEYS.ATTACK) acc.atk = value;
+        if (name === PkmStat.STATS_KEYS.DEFENSE) acc.def = value;
+        if (name === PkmStat.STATS_KEYS.SP_ATTACK) acc.spAtk = value;
+        if (name === PkmStat.STATS_KEYS.SP_DEFENSE) acc.spDef = value;
+        if (name === PkmStat.STATS_KEYS.SPEED) acc.spd = value;
+        return acc;
+    }, PkmStat.STAT_DEFAULT);
 
     // Mock stats based on Pokemon (since we don't have stats in schema yet)
     const stats = [
@@ -84,7 +82,7 @@ export default function PokemonDetailPage() {
             label: 'Attack',
             value: PkmCalc.calculateStat(
                 baseStats.atk,
-                pokemon.ivs?.atk || 0,
+                pokemon.ivs?.atk,
                 0,
                 pokemon.lv,
                 PkmCalc.NATURE_MODIFIERS_KEYS.HARDY,
@@ -98,7 +96,7 @@ export default function PokemonDetailPage() {
             label: 'Defense',
             value: PkmCalc.calculateStat(
                 baseStats.def,
-                pokemon.ivs?.def || 0,
+                pokemon.ivs?.def,
                 0,
                 pokemon.lv,
                 PkmCalc.NATURE_MODIFIERS_KEYS.HARDY,
@@ -112,7 +110,7 @@ export default function PokemonDetailPage() {
             label: 'Sp. Atk',
             value: PkmCalc.calculateStat(
                 baseStats.spAtk,
-                pokemon.ivs?.spAtk || 0,
+                pokemon.ivs?.spAtk,
                 0,
                 pokemon.lv,
                 PkmCalc.NATURE_MODIFIERS_KEYS.HARDY,
@@ -126,7 +124,7 @@ export default function PokemonDetailPage() {
             label: 'Sp. Def',
             value: PkmCalc.calculateStat(
                 baseStats.spDef,
-                pokemon.ivs?.spDef || 0,
+                pokemon.ivs?.spDef,
                 0,
                 pokemon.lv,
                 PkmCalc.NATURE_MODIFIERS_KEYS.HARDY,
@@ -140,7 +138,7 @@ export default function PokemonDetailPage() {
             label: 'Speed',
             value: PkmCalc.calculateStat(
                 baseStats.spd,
-                pokemon.ivs?.spd || 0,
+                pokemon.ivs?.spd,
                 0,
                 pokemon.lv,
                 PkmCalc.NATURE_MODIFIERS_KEYS.HARDY,
@@ -170,7 +168,7 @@ export default function PokemonDetailPage() {
                     <div className="absolute inset-0 bg-linear-to-b from-yellow-500/10 to-transparent" />
                     <div className="absolute w-[80%] h-[80%] bg-yellow-500/5 rounded-full blur-[80px]" />
                     <img
-                        src={pokemon.spriteUrl}
+                        src={pokemon.img}
                         alt={pokemon.name}
                         className="w-full h-full object-contain relative z-10 drop-shadow-[0_0_30px_rgba(234,179,8,0.3)] animate-float"
                     />
@@ -326,9 +324,9 @@ export default function PokemonDetailPage() {
                                     {new Date(
                                         pokemon.createdAt,
                                     ).toLocaleDateString('th-TH', {
-                                        year: 'numeric',
-                                        month: 'long',
                                         day: 'numeric',
+                                        month: 'long',
+                                        year: 'numeric',
                                     })}
                                 </p>
                             </div>

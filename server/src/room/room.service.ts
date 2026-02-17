@@ -20,7 +20,7 @@ export class RoomService {
             name: string;
             height: number;
             weight: number;
-            spriteUrl: string;
+            img: string;
             attempts: number;
             status: 'active' | 'completed';
         }
@@ -61,7 +61,7 @@ export class RoomService {
                 name: data.name,
                 height: data.height,
                 weight: data.weight,
-                spriteUrl: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${pokemonId}.png`,
+                img: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${pokemonId}.png`,
                 attempts: 0,
                 status: 'active' as const,
             };
@@ -76,8 +76,7 @@ export class RoomService {
                 name: 'pikachu',
                 height: 4,
                 weight: 60,
-                spriteUrl:
-                    'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/25.png',
+                img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/25.png',
                 attempts: 0,
                 status: 'active' as const,
             };

@@ -2,16 +2,16 @@
 import {
     MessageBody,
     ConnectedSocket,
+    WebSocketServer,
     SubscribeMessage,
     WebSocketGateway,
-    WebSocketServer,
     OnGatewayConnection,
     OnGatewayDisconnect,
 } from '@nestjs/websockets';
+import { Logger } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
 import { RoomService } from './room.service';
 import { UserService } from '../user/user.service';
-import { Logger, UseFilters } from '@nestjs/common';
 import { PokemonService } from '../pokemon/pokemon.service';
 import { InventoryService } from '../inventory/inventory.service';
 
@@ -266,10 +266,8 @@ export class RoomGateway implements OnGatewayConnection, OnGatewayDisconnect {
             data.username,
         );
         const ball = inventory.inventory.find((i) => i.id === 0);
-        if (!ball || ball.quantity <= 0) {
-            client.emit('error', 'คุณรอบอล Rotom Ball ไม่พอ!');
-            return;
-        }
+        if (!ball || ball.quantity <= 0)
+            return client.emit('error', 'คุณรอบอล Rotom Ball ไม่พอ!');
 
         const result = this.roomService.submitGuess(data.roomId, data.guess);
 
@@ -391,34 +389,12 @@ export class RoomGateway implements OnGatewayConnection, OnGatewayDisconnect {
         // Find user by username to get their UID
         const user = await this.userService.findByUsername(username);
         if (!user) return;
-
-        const currentParty = await this.pokemonService.findParty(user.uid);
-        const isInParty = currentParty.length < 6;
-        const index = isInParty ? currentParty.length : -1;
-
-        const ivHp = Math.floor(Math.random() * 32);
-        const ivAtk = Math.floor(Math.random() * 32);
-        const ivDef = Math.floor(Math.random() * 32);
-        const ivSpAtk = Math.floor(Math.random() * 32);
-        const ivSpDef = Math.floor(Math.random() * 32);
-        const ivSpd = Math.floor(Math.random() * 32);
-
         await this.pokemonService.catchPokemon({
             ownerUid: user.uid,
             pkmId: pokemon.id,
             name: pokemon.name,
-            spriteUrl: pokemon.spriteUrl,
-            nickname: '',
-            isInParty,
-            index,
-            ivs: {
-                hp: ivHp,
-                atk: ivAtk,
-                def: ivDef,
-                spAtk: ivSpAtk,
-                spDef: ivSpDef,
-                spd: ivSpd,
-            },
+            img: pokemon.img,
+            lv: 1,
         });
 
         // Reward: 10 Coins

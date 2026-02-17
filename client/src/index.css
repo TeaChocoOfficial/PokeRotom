@@ -160,3 +160,77 @@
         transform: scale(1);
     }
 }
+
+@layer type-component {
+    .type-component {
+        @apply px-6 py-2 rounded-2xl text-sm font-black uppercase tracking-[0.2em] shadow-lg border-b-4 border-black/20 text-white;
+    }
+
+    .type-component.fire {
+        @apply bg-red-500;
+    }
+
+    .type-component.water {
+        @apply bg-blue-500;
+    }
+
+    .type-component.electric {
+        @apply bg-yellow-500;
+    }
+
+    .type-component.grass {
+        @apply bg-green-500;
+    }
+
+    .type-component.ice {
+        @apply bg-cyan-500;
+    }
+
+    .type-component.fighting {
+        @apply bg-red-500;
+    }
+
+    .type-component.poison {
+        @apply bg-purple-500;
+    }
+
+    .type-component.ground {
+        @apply bg-yellow-500;
+    }
+
+    .type-component.flying {
+        @apply bg-blue-500;
+    }
+
+    .type-component.psychic {
+        @apply bg-purple-500;
+    }
+
+    .type-component.bug {
+        @apply bg-green-500;
+    }
+
+    .type-component.rock {
+        @apply bg-gray-500;
+    }
+
+    .type-component.ghost {
+        @apply bg-purple-500;
+    }
+
+    .type-component.dragon {
+        @apply bg-blue-500;
+    }
+
+    .type-component.steel {
+        @apply bg-gray-500;
+    }
+
+    .type-component.dark {
+        @apply bg-gray-500;
+    }
+
+    .type-component.fairy {
+        @apply bg-pink-500;
+    }
+}

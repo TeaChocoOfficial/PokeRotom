@@ -1,7 +1,7 @@
 // - Path: "PokeRotom/client/src/pages/game/stores/PokemonPage.tsx"
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { usePokemonStore } from '../../../stores/pokemonStore';
+import { usePokemonStore } from '../../../../stores/pokemonStore';
 
 /** คำนวณ max exp ตาม lv */
 const getMaxExp = (lv: number): number => lv * lv * 10;
@@ -76,7 +76,7 @@ export default function PokemonPage() {
                         <div className="relative aspect-square flex justify-center items-center mb-4">
                             <div className="absolute inset-0 bg-yellow-400/5 rounded-full blur-2xl group-hover:bg-yellow-400/10 transition-colors" />
                             <img
-                                src={pokemon.spriteUrl}
+                                src={pokemon.img}
                                 alt={pokemon.name}
                                 className="w-24 h-24 relative z-10 drop-shadow-xl group-hover:scale-110 transition-transform pointer-events-none"
                             />

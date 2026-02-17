@@ -13,7 +13,7 @@ export class Pokemon {
     name: string;
 
     @Prop({ required: true })
-    spriteUrl: string;
+    img: string;
 
     @Prop({ required: true, index: true })
     ownerUid: number;

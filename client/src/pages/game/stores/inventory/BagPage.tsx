@@ -1,7 +1,7 @@
 //-Path: "PokeRotom/client/src/pages/game/stores/BagPage.tsx"
 import { useEffect, useState } from 'react';
 import { ShoppingBag, Loader2, PackageOpen } from 'lucide-react';
-import { useInventoryStore } from '../../../stores/inventoryStore';
+import { useInventoryStore } from '../../../../stores/inventoryStore';
 
 const CATEGORY_MAP = [
     { key: 'ball', label: 'Poké Balls', icon: '🔴' },
@@ -73,14 +73,7 @@ export default function BagPage() {
                             >
                                 <div className="relative w-16 h-16 flex items-center justify-center bg-slate-800 rounded-2xl group-hover:bg-purple-500/10 transition-colors">
                                     <span className="text-4xl relative z-10 group-hover:scale-110 transition-transform">
-                                        {item.img ? (
-                                            <img
-                                                src={item.img}
-                                                alt={item.name}
-                                            />
-                                        ) : (
-                                            item.icon
-                                        )}
+                                        <img src={item.img} alt={item.name} />
                                     </span>
                                     <div className="absolute inset-0 bg-purple-500/20 blur-xl opacity-0 group-hover:opacity-100 transition-opacity rounded-full" />
                                 </div>

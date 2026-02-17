@@ -3,3 +3,5 @@
 export type QueryOptions = Partial<
     Record<string, string | boolean | number | undefined | null>
 >;
+
+export type Url = `https://${string}` | null;

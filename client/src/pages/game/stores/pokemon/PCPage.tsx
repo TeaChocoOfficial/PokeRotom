@@ -3,9 +3,9 @@ import 'allotment/dist/style.css';
 import { Allotment } from 'allotment';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { pokemonAPI } from '../../../api/pokemonApi';
-import type { Pokemon } from '../../../types/pokemon';
-import { usePokemonStore } from '../../../stores/pokemonStore';
+import { pokemonAPI } from '../../../../api/pokemonApi';
+import type { PokemonDB } from '../../../../types/pokemon';
+import { usePokemonStore } from '../../../../stores/pokemonStore';
 import { Info, Swords, Trash2, Monitor, ArrowLeftRight } from 'lucide-react';
 
 /** คำนวณ max exp ตาม level (สูตรเดียวกับ server) */
@@ -27,7 +27,7 @@ export default function PCPage() {
         fetchPokemons();
     }, []);
 
-    const handleToggleParty = async (pokemon: Pokemon, toParty: boolean) => {
+    const handleToggleParty = async (pokemon: PokemonDB, toParty: boolean) => {
         setError('');
         if (toParty && party.length >= 6)
             return setError('ทีมของคุณเต็มแล้ว! (สูงสุด 6 ตัว)');
@@ -46,7 +46,7 @@ export default function PCPage() {
         }
     };
 
-    const handleRelease = async (pokemon: Pokemon) => {
+    const handleRelease = async (pokemon: PokemonDB) => {
         setError('');
         if (
             !confirm(
@@ -63,7 +63,7 @@ export default function PCPage() {
         }
     };
 
-    const handleDragStart = (event: React.DragEvent, pokemon: Pokemon) => {
+    const handleDragStart = (event: React.DragEvent, pokemon: PokemonDB) => {
         event.dataTransfer.setData('pokemonId', pokemon._id);
         event.dataTransfer.setData('isInParty', pokemon.isInParty.toString());
         event.dataTransfer.effectAllowed = 'move';
@@ -180,7 +180,7 @@ export default function PCPage() {
                                         <div className="absolute top-0 left-0 w-1.5 h-full bg-yellow-500 opacity-0 group-hover:opacity-100 transition-opacity" />
                                         <div className="w-16 h-16 rounded-2xl bg-slate-700/50 flex items-center justify-center border border-slate-700 shrink-0">
                                             <img
-                                                src={pokemon.spriteUrl}
+                                                src={pokemon.img}
                                                 alt={pokemon.name}
                                                 className="w-14 h-14 object-contain drop-shadow-md group-hover:scale-110 transition-transform pointer-events-none"
                                             />
@@ -279,7 +279,7 @@ export default function PCPage() {
                                             <div className="absolute top-0 right-0 w-full h-1 bg-cyan-500 opacity-0 group-hover:opacity-100 transition-opacity" />
                                             <div className="w-20 h-20 rounded-2xl bg-slate-700/30 flex items-center justify-center border border-slate-700/50 group-hover:bg-cyan-500/10 transition-colors pointer-events-none">
                                                 <img
-                                                    src={pokemon.spriteUrl}
+                                                    src={pokemon.img}
                                                     alt={pokemon.name}
                                                     className="w-16 h-16 object-contain drop-shadow-xl group-hover:scale-110 transition-transform"
                                                 />

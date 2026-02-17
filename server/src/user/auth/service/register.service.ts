@@ -55,13 +55,11 @@ export class RegisterService {
         const savedUser = await newUser.save();
 
         await this.pokemonService.catchPokemon({
-            ownerUid: savedUser.uid,
             pkmId: register.starterId,
+            ownerUid: savedUser.uid,
             name: starter.name,
-            spriteUrl: starter.spriteUrl,
-            nickname: '',
-            isInParty: true,
-            index: 0,
+            img: starter.img,
+            lv: 5,
         });
 
         return savedUser;

@@ -5,22 +5,25 @@ import Layout from './components/Layout';
 import { useEffect, useState } from 'react';
 import AuthPage from './pages/auth/AuthPage';
 import SettingsPage from './pages/SettingsPage';
-import PCPage from './pages/game/stores/PCPage';
 import GameLayout from './components/GameLayout';
-import BagPage from './pages/game/stores/BagPage';
 import { useAuthStore } from './stores/authStore';
-import ShopPage from './pages/game/stores/ShopPage';
 import WildPage from './pages/game/global/WildPage';
 import MenuPage from './pages/game/layouts/MenuPage';
 import TradePage from './pages/game/global/TradePage';
 import LobbyPage from './pages/game/layouts/LobbyPage';
+import PCPage from './pages/game/stores/pokemon/PCPage';
 import BattlePage from './pages/game/global/BattlePage';
 import { useSettingStore } from './stores/settingStore';
-import PokedexPage from './pages/game/stores/PokedexPage';
-import PokemonPage from './pages/game/stores/PokemonPage';
 import { Route, Routes, Navigate } from 'react-router-dom';
-import PokemonDetailPage from './pages/game/stores/PokemonDetailPage';
-import PokedexDetailPage from './pages/game/stores/PokedexDetailPage';
+import BagPage from './pages/game/stores/inventory/BagPage';
+import ShopPage from './pages/game/stores/inventory/ShopPage';
+import PokedexPage from './pages/game/stores/pokedex/PokedexPage';
+import PokemonPage from './pages/game/stores/pokemon/PokemonPage';
+import PokemonDetailPage from './pages/game/stores/pokemon/PokemonDetailPage';
+import PokedexPkmDetailPage from './pages/game/stores/pokedex/details/PokedexPkmDetailPage';
+import PokedexItemDetailPage from './pages/game/stores/pokedex/details/PokedexItemDetailPage';
+import PokedexMoveDetailPage from './pages/game/stores/pokedex/details/PokedexMoveDetailPage';
+import PokedexAbilityDetailPage from './pages/game/stores/pokedex/details/PokedexAbilityDetailPage';
 
 export default function App() {
     const { isAuth, setUser } = useAuthStore();
@@ -79,7 +82,22 @@ export default function App() {
                     <Route path="bag" element={<BagPage />} />
                     <Route path="shop" element={<ShopPage />} />
                     <Route path="pokedex" element={<PokedexPage />} />
-                    <Route path="pokedex/:id" element={<PokedexDetailPage />} />
+                    <Route
+                        path="pokedex/pokemon/:id"
+                        element={<PokedexPkmDetailPage />}
+                    />
+                    <Route
+                        path="pokedex/item/:id"
+                        element={<PokedexItemDetailPage />}
+                    />
+                    <Route
+                        path="pokedex/move/:id"
+                        element={<PokedexMoveDetailPage />}
+                    />
+                    <Route
+                        path="pokedex/ability/:id"
+                        element={<PokedexAbilityDetailPage />}
+                    />
                     <Route path="pokemon" element={<PokemonPage />} />
                     <Route path="pokemon/:id" element={<PokemonDetailPage />} />
 

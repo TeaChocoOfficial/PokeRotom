@@ -1,17 +1,17 @@
 //-Path: "PokeRotom/client/src/stores/pokemonStore.ts"
 import { create } from 'zustand';
-import type { Pokemon } from '../types/pokemon';
+import type { PokemonDB } from '../types/pokemon';
 
 interface PokemonState {
-    pc: Pokemon[];
+    pc: PokemonDB[];
     totalCount: number;
     pcFetched: boolean;
     partyFetched: boolean;
-    party: Pokemon[];
+    party: PokemonDB[];
     clear: () => void;
     fetchPokemons: () => Promise<void>;
-    setPc: (pc: Pokemon[]) => void;
-    setParty: (party: Pokemon[]) => void;
+    setPc: (pc: PokemonDB[]) => void;
+    setParty: (party: PokemonDB[]) => void;
     setTotalCount: (count: number) => void;
     reorderParty: (startIndex: number, endIndex: number) => void;
     updatePokemonStatus: (pokemonId: string, isInParty: boolean) => void;

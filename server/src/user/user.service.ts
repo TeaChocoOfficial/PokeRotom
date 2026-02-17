@@ -89,6 +89,10 @@ export class UserService {
         }
     }
 
+    async findByUid(uid: number): Promise<UserDocument | null> {
+        return this.userModel.findOne({ uid }).exec();
+    }
+
     async findByUsername(username: string): Promise<UserDocument | null> {
         return this.userModel.findOne({ username }).exec();
     }

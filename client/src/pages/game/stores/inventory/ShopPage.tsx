@@ -9,8 +9,8 @@ import {
     ShoppingCart,
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import { inventoryAPI } from '../../../api/inventoryApi';
-import { useInventoryStore } from '../../../stores/inventoryStore';
+import { inventoryAPI } from '../../../../api/inventoryApi';
+import { useInventoryStore } from '../../../../stores/inventoryStore';
 
 export default function ShopPage() {
     const {
@@ -175,15 +175,11 @@ export default function ShopPage() {
                             <div className="p-8 pb-4 flex items-start justify-between">
                                 <div className="relative w-24 h-24 flex items-center justify-center bg-slate-800 rounded-3xl group-hover:bg-green-500/10 transition-colors">
                                     <span className="text-5xl relative z-10 group-hover:scale-110 group-hover:-rotate-12 transition-transform">
-                                        {item.img ? (
-                                            <img
-                                                src={item.img}
-                                                alt={item.name}
-                                                className="w-16 h-16 object-contain"
-                                            />
-                                        ) : (
-                                            item.icon
-                                        )}
+                                        <img
+                                            src={item.img}
+                                            alt={item.name}
+                                            className="w-16 h-16 object-contain"
+                                        />
                                     </span>
                                     <div className="absolute inset-0 bg-green-500/10 blur-2xl opacity-0 group-hover:opacity-100 transition-opacity" />
                                 </div>
