@@ -5,9 +5,10 @@ import {
     BadRequestException,
 } from '@nestjs/common';
 import { Model } from 'mongoose';
+import { ItemDto } from './dto/item.dto';
 import { nameDB } from '../hooks/mongodb';
 import { InjectModel } from '@nestjs/mongoose';
-import { getAllItems, Item } from '../data/items.data';
+import { getAllItems } from '../data/items.data';
 import { SecureService } from 'src/secure/secure.service';
 import { User, UserDocument } from '../user/schemas/user.schema';
 
@@ -19,7 +20,7 @@ export class InventoryService {
         private secureService: SecureService,
     ) {}
 
-    getAllItems(): Item[] {
+    getAllItems(): ItemDto[] {
         return getAllItems(this.secureService.getEnvConfig());
     }
 
