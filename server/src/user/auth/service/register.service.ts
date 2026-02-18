@@ -1,4 +1,10 @@
 //-Path: "PokeRotom/server/src/user/auth/service/register.service.ts"
+import {
+    Inject,
+    Injectable,
+    forwardRef,
+    BadRequestException,
+} from '@nestjs/common';
 import { Model } from 'mongoose';
 import { nameDB } from 'src/hooks/mongodb';
 import { AuthService } from '../auth.service';
@@ -6,7 +12,6 @@ import { InjectModel } from '@nestjs/mongoose';
 import { RegisterDto } from '../dto/register.dto';
 import { starterMap } from 'src/data/starter.data';
 import { PokemonService } from 'src/pokemon/pokemon.service';
-import { BadRequestException, Injectable } from '@nestjs/common';
 import { User, UserDocument } from 'src/user/schemas/user.schema';
 
 @Injectable()
@@ -15,6 +20,7 @@ export class RegisterService {
         private readonly authService: AuthService,
         @InjectModel(User.name, nameDB)
         private readonly userModel: Model<UserDocument>,
+        @Inject(forwardRef(() => PokemonService))
         private readonly pokemonService: PokemonService,
     ) {}
 
