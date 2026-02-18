@@ -92,8 +92,6 @@ export default function PokedexPkmDetailPage() {
         );
 
     const pokemon = PokeApi.toPokemonDetail(data.pokemon_v2_pokemon_by_pk);
-    const imageUrl =
-        pokemon.sprites?.other?.['official-artwork']?.front_default ?? '';
 
     const filteredMoves = (
         moveFilter === 'all'
@@ -164,7 +162,7 @@ export default function PokedexPkmDetailPage() {
                             #{String(pokemon.id).padStart(3, '0')}
                         </div>
                         <img
-                            src={imageUrl}
+                            src={pokemon.img || ''}
                             alt={pokemon.name}
                             className="w-full max-w-[400px] h-auto object-contain relative z-10 drop-shadow-2xl animate-float"
                         />
