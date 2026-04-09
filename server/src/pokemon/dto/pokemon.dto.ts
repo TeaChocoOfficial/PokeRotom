@@ -87,6 +87,10 @@ export class PokemonDto {
 export class UpdatePartyDto {
     @IsBoolean()
     isInParty: boolean;
+
+    @IsNumber()
+    @IsOptional()
+    index?: number;
 }
 
 export class UpdateNicknameDto {

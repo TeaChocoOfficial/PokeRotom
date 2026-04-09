@@ -121,7 +121,7 @@ export class UserService {
             .findByIdAndUpdate(
                 user_id,
                 { $inc: { coins: amount } },
-                { new: true },
+                { returnDocument: 'after' },
             )
             .exec();
     }

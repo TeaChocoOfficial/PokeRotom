@@ -11,8 +11,8 @@ import {
     Controller,
 } from '@nestjs/common';
 import {
-    UpdatePartyDto,
     PokemonDto,
+    UpdatePartyDto,
     UpdateNicknameDto,
 } from './dto/pokemon.dto';
 import { PokemonService } from './pokemon.service';
@@ -70,6 +70,20 @@ export class PokemonController {
         return this.pokemonService.updatePartyStatus(
             pokemonDocId,
             updatePartyDto,
+            req.user.uid,
+        );
+    }
+
+    /** PATCH /pokemon/:id/move-pc - ย้ายตำแหน่งใน PC */
+    @Patch(':id/move-pc')
+    movePokemonPC(
+        @Param('id') pokemonDocId: string,
+        @Body('index') newIndex: number,
+        @Req() req,
+    ) {
+        return this.pokemonService.movePokemonPC(
+            pokemonDocId,
+            newIndex,
             req.user.uid,
         );
     }

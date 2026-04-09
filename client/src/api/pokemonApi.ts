@@ -35,11 +35,26 @@ export const pokemonAPI = {
     async updatePokemonsStatus(
         pokemonDocId: string,
         isInParty: boolean,
+        index?: number,
     ): Promise<PokemonDB | null> {
         const response = await serverRest.patch(
             `pokemon/${pokemonDocId}/party`,
             {
                 isInParty,
+                index,
+            },
+        );
+        return response.data;
+    },
+    /** ย้ายตำแหน่งใน PC */
+    async movePokemonPC(
+        pokemonDocId: string,
+        index: number,
+    ): Promise<PokemonDB | null> {
+        const response = await serverRest.patch(
+            `pokemon/${pokemonDocId}/move-pc`,
+            {
+                index,
             },
         );
         return response.data;

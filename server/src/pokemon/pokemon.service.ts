@@ -114,7 +114,7 @@ export class PokemonService {
             .findByIdAndUpdate(
                 pokemonDocId,
                 { lv: currentLv, exp: currentExp },
-                { new: true },
+                { returnDocument: 'after' },
             )
             .exec();
     }
@@ -143,21 +143,127 @@ export class PokemonService {
         updatePartyDto: UpdatePartyDto,
         ownerUid: number,
     ): Promise<PokemonDocument | null> {
+        const pokemon = await this.findById(pokemonDocId, ownerUid);
+        if (!pokemon) throw new BadRequestException('Pokemon not found');
+
         const currentParty = await this.findParty(ownerUid);
 
         if (updatePartyDto.isInParty) {
             if (currentParty.length >= 6) return null;
+
+            // ถ้ากำหนด index มาให้ใช้ตามนั้น (ถ้าว่าง) ถ้าไม่ระบุให้หาช่องว่างแรก (0-5)
+            if (updatePartyDto.index !== undefined) {
+                const isOccupied = currentParty.some(
+                    (p) => p.index === updatePartyDto.index,
+                );
+                if (isOccupied) {
+                    const partyIndices = currentParty.map((p) => p.index);
+                    let nextIndex = 0;
+                    while (partyIndices.includes(nextIndex) && nextIndex < 6)
+                        nextIndex++;
+                    updatePartyDto.index = nextIndex;
+                }
+            } else {
+                const partyIndices = currentParty.map((p) => p.index);
+                let nextIndex = 0;
+                while (partyIndices.includes(nextIndex) && nextIndex < 6)
+                    nextIndex++;
+                updatePartyDto.index = nextIndex;
+            }
         } else {
             if (currentParty.length <= 1)
                 throw new BadRequestException(
                     'ต้องมีโปเกมอนในทีมอย่างน้อย 1 ตัว',
                 );
+
+            // ถ้าถัดออกจากทีมไป PC
+            if (updatePartyDto.index !== undefined) {
+                const targetInPC = await this.pokemonModel
+                    .findOne({
+                        ownerUid,
+                        isInParty: false,
+                        index: updatePartyDto.index,
+                    })
+                    .exec();
+                if (targetInPC) {
+                    // SWAP: ตัวที่อยู่ใน PC เดิม ย้ายเข้า Party แทนที่ตำแหน่งเดิมของตัวที่ลากมา
+                    await this.pokemonModel
+                        .updateOne(
+                            { _id: targetInPC._id },
+                            { isInParty: true, index: pokemon.index },
+                        )
+                        .exec();
+                }
+            } else {
+                // กรณีคลิกปุ่ม Toggle (ไม่มี index ส่งมา)
+                // ให้เช็คว่า Index เดิมใน PC ว่างหรือไม่ ถ้าไม่ว่างให้หาที่ว่างใหม่
+                const isOccupied = await this.pokemonModel
+                    .findOne({
+                        ownerUid,
+                        isInParty: false,
+                        index: pokemon.index,
+                    })
+                    .exec();
+
+                if (isOccupied || pokemon.index === -1) {
+                    let searchIdx = 0;
+                    while (
+                        await this.pokemonModel
+                            .findOne({
+                                ownerUid,
+                                isInParty: false,
+                                index: searchIdx,
+                            })
+                            .exec()
+                    )
+                        searchIdx++;
+                    updatePartyDto.index = searchIdx;
+                } else {
+                    // ถ้าที่เดิมว่าง (เช่นพวก 0-5 ใน Box 1) ก็ใช้ที่เดิมได้
+                    updatePartyDto.index = pokemon.index;
+                }
+            }
         }
 
         return this.pokemonModel
             .findOneAndUpdate({ _id: pokemonDocId, ownerUid }, updatePartyDto, {
-                new: true,
+                returnDocument: 'after',
             })
+            .exec();
+    }
+
+    /** ย้ายตำแหน่งโปเกมอนใน PC Box */
+    async movePokemonPC(
+        pokemonDocId: string,
+        newIndex: number,
+        ownerUid: number,
+    ): Promise<PokemonDocument | null> {
+        const movingPokemon = await this.pokemonModel
+            .findOne({ _id: pokemonDocId, ownerUid, isInParty: false })
+            .exec();
+        if (!movingPokemon) return null;
+
+        // เช็คว่ามีตัวอื่นอยู่ที่นี่ไหม
+        const targetPokemon = await this.pokemonModel
+            .findOne({ ownerUid, isInParty: false, index: newIndex })
+            .exec();
+
+        if (targetPokemon && targetPokemon._id.toString() !== pokemonDocId) {
+            // Swap ตำแหน่งกัน
+            await this.pokemonModel
+                .updateOne(
+                    { _id: targetPokemon._id },
+                    { index: movingPokemon.index },
+                )
+                .exec();
+        }
+
+        return this.pokemonModel
+            .findByIdAndUpdate(
+                pokemonDocId,
+                { index: newIndex },
+                { returnDocument: 'after' },
+            )
             .exec();
     }
 
@@ -171,7 +277,7 @@ export class PokemonService {
             .findOneAndUpdate(
                 { _id: pokemonDocId, ownerUid },
                 updateNicknameDto,
-                { new: true },
+                { returnDocument: 'after' },
             )
             .exec();
     }
