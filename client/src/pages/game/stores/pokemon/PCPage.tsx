@@ -238,7 +238,6 @@ export default function PCPage() {
                                     key={p._id}
                                     pokemon={p}
                                     handleDragStart={handleDragStart}
-                                    handleToggleParty={handleToggleParty}
                                 />
                             ))}
                         </div>
@@ -292,9 +291,6 @@ export default function PCPage() {
                                             key={p._id}
                                             pokemon={p}
                                             handleDragStart={handleDragStart}
-                                            handleToggleParty={
-                                                handleToggleParty
-                                            }
                                         />
                                     ))}
                                     {[...Array(6 - party.length)].map(
