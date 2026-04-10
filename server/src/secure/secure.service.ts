@@ -7,7 +7,7 @@ import { EnvConfig, envConfigs } from './dto/secure.dto';
 export class SecureService {
     constructor(private readonly configService: ConfigService) {}
 
-    isDev = () => this.getEnvConfig().NEXT_MODE === 'development';
+    isDev = () => this.getEnvConfig().MODE === 'development';
 
     getEnvConfig = (): EnvConfig =>
         envConfigs.reduce(
