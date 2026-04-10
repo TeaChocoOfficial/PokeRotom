@@ -1,14 +1,14 @@
 // -Path: "PokeRotom/client/src/screen/game/GameScene.tsx"
 'use client';
 import Objects from './Objects';
+import { useControls } from 'leva';
 import Lighting from './world/Lighting';
 import WildPokemon from './pokemon/WildPokemon';
-import { useControls } from 'leva';
 import { OrbitControls } from '@react-three/drei';
 import { useSocketStore } from '$/stores/socketStore';
 
 export default function GameScene() {
-    const { wildPokemon, remotePlayers } = useSocketStore();
+    const { wildPokemon } = useSocketStore();
     const { seed, debug } = useControls('world', {
         seed: '1234',
         debug: false,
@@ -23,7 +23,7 @@ export default function GameScene() {
             <Objects seed={seed} debug={debug} />
 
             {/* Wild Pokemon (From Server) */}
-            {/* {wildPokemon && (
+            {wildPokemon && (
                 <WildPokemon
                     name={wildPokemon.name}
                     position={[
@@ -33,7 +33,7 @@ export default function GameScene() {
                     ]}
                     pokemonId={wildPokemon.id}
                 />
-            )} */}
+            )}
         </>
     );
 }

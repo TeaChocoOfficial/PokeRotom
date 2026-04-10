@@ -1,8 +1,8 @@
 // -Path: "PokeRotom/client/src/screen/game/Lighting.tsx"
+import { useControls } from 'leva';
 import { Sky } from '@react-three/drei';
 import { useFrame } from '@react-three/fiber';
 import { useGameStore } from '$/stores/gameStore';
-import { useControls } from 'leva';
 
 export default function Lighting() {
     const { time, addTime, setTime } = useGameStore();
@@ -33,7 +33,7 @@ export default function Lighting() {
     ];
 
     useFrame((_, delta) => {
-        // addTime(delta * 200);
+        addTime(delta * 10);
         setTime(daytime);
     });
 
