@@ -10,10 +10,11 @@ import { usePlayerInput } from '$/hooks/usePlayerInput';
 import { useFrame, useThree } from '@react-three/fiber';
 import type { RapierRigidBody } from '@react-three/rapier';
 import { RigidBody, CapsuleCollider } from '@react-three/rapier';
+import { getPlayerChunk } from '../world/terrain/chunk';
 
 const PLAYER_ROT_SPEED = 12;
 
-export default function Player() {
+export default function Player({ debug }: { debug?: boolean }) {
     const { camera } = useThree();
     const lastEmitTime = useRef(0);
     const keysRef = usePlayerInput();
@@ -23,17 +24,23 @@ export default function Player() {
     const smoothCamPos = useRef(new THREE.Vector3(0, 12, 14));
     const smoothLookAt = useRef(new THREE.Vector3(0, 1.5, 0));
     const { yaw, offset, lookOffset, lerpSpeed } = useCameraStore();
-    const { setPlayerPosition, setMovementState } = useGameStore();
+    const { setPlayerPosition, setMovementState, setPlayerChunk } =
+        useGameStore();
 
     useFrame((_, delta) => {
         if (!bodyRef.current || !meshRef.current) return;
 
         const keys = keysRef.current;
         const speed = keys.shift ? 10 : 5;
-        const isMoving = keys.forward || keys.backward || keys.left || keys.right;
+        const isMoving =
+            keys.forward || keys.backward || keys.left || keys.right;
 
         /** @description คำนวณทิศทางการเดืนอิงตามมุมกล้อง (ใช้ yaw จาก cameraStore) */
-        const forward = new THREE.Vector3(-Math.sin(yaw), 0, -Math.cos(yaw)).normalize();
+        const forward = new THREE.Vector3(
+            -Math.sin(yaw),
+            0,
+            -Math.cos(yaw),
+        ).normalize();
         const right = new THREE.Vector3(-forward.z, 0, forward.x).normalize();
 
         const direction = new THREE.Vector3();
@@ -47,7 +54,10 @@ export default function Player() {
             direction.normalize();
             const targetAngle = Math.atan2(direction.x, direction.z);
             const currentRot = meshRef.current.rotation.y;
-            const diff = Math.atan2(Math.sin(targetAngle - currentRot), Math.cos(targetAngle - currentRot));
+            const diff = Math.atan2(
+                Math.sin(targetAngle - currentRot),
+                Math.cos(targetAngle - currentRot),
+            );
             meshRef.current.rotation.y += diff * PLAYER_ROT_SPEED * delta;
         }
 
@@ -63,36 +73,56 @@ export default function Player() {
             true,
         );
 
-        setPlayerPosition(new THREE.Vector3(translation.x, translation.y, translation.z));
+        const playerPosition = new THREE.Vector3(
+            translation.x,
+            translation.y,
+            translation.z,
+        );
+        setPlayerPosition(playerPosition);
 
-        const movementState = !isMoving ? 'idle' : keys.shift ? 'running' : 'walking';
+        const movementState = !isMoving
+            ? 'idle'
+            : keys.shift
+              ? 'running'
+              : 'walking';
         setMovementState(movementState);
 
-        /** @description กล้องติดตามตัวละคร (Smooth Follow) */
-        const rotatedOffset = offset.clone().applyAxisAngle(new THREE.Vector3(0, 1, 0), yaw);
-        const targetCamPos = new THREE.Vector3(
-            translation.x + rotatedOffset.x,
-            translation.y + rotatedOffset.y,
-            translation.z + rotatedOffset.z
-        );
-        const targetLookAt = new THREE.Vector3(
-            translation.x + lookOffset.x,
-            translation.y + lookOffset.y,
-            translation.z + lookOffset.z
-        );
+        const playerChunk = getPlayerChunk(playerPosition);
+        setPlayerChunk(playerChunk);
 
-        smoothCamPos.current.lerp(targetCamPos, lerpSpeed * delta);
-        smoothLookAt.current.lerp(targetLookAt, lerpSpeed * delta);
+        /** @description กล้องติดตามตัวละคร (Smooth Follow) - ปิดถ้าอยู่ในโหมด debug เพื่อให้ OrbitControls ทำงานได้ */
+        if (!debug) {
+            const rotatedOffset = offset
+                .clone()
+                .applyAxisAngle(new THREE.Vector3(0, 1, 0), yaw);
+            const targetCamPos = new THREE.Vector3(
+                translation.x + rotatedOffset.x,
+                translation.y + rotatedOffset.y,
+                translation.z + rotatedOffset.z,
+            );
+            const targetLookAt = new THREE.Vector3(
+                translation.x + lookOffset.x,
+                translation.y + lookOffset.y,
+                translation.z + lookOffset.z,
+            );
 
-        camera.position.copy(smoothCamPos.current);
-        camera.lookAt(smoothLookAt.current);
+            smoothCamPos.current.lerp(targetCamPos, lerpSpeed * delta);
+            smoothLookAt.current.lerp(targetLookAt, lerpSpeed * delta);
+
+            camera.position.copy(smoothCamPos.current);
+            camera.lookAt(smoothLookAt.current);
+        }
 
         /** @description ส่งตำแหน่งไปยัง Socket (throttle 15 ครั้ง/วินาที) */
         const now = Date.now();
         if (now - lastEmitTime.current > 66) {
             lastEmitTime.current = now;
             emitPlayerMove({
-                position: { x: translation.x, y: translation.y, z: translation.z },
+                position: {
+                    x: translation.x,
+                    y: translation.y,
+                    z: translation.z,
+                },
                 rotation: { x: 0, y: meshRef.current.rotation.y, z: 0 },
                 movementState,
             });

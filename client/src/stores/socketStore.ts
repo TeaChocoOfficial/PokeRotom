@@ -54,7 +54,6 @@ export const useSocketStore = create<SocketState>()((set, get) => ({
     connect: () => {
         const existingSocket = get().socket;
         if (existingSocket?.connected) return;
-        console.log('Bearer ' + process.env.NEXT_PUBLIC_API_TOKEN_KEY);
         const socket = io(SERVER_URL, {
             auth: {
                 tokenKey: `Bearer ${process.env.NEXT_PUBLIC_API_TOKEN_KEY}`,

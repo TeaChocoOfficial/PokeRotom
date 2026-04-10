@@ -1,41 +1,29 @@
 // -Path: "PokeRotom/client/src/screen/game/GameScene.tsx"
 'use client';
-import Test from './Test';
-import { Suspense } from 'react';
-import Trees from './world/Trees';
-import Player from './player/Player';
-import Terrain from './world/Terrain';
+import Objects from './Objects';
 import Lighting from './world/Lighting';
-import { Physics } from '@react-three/rapier';
-import OtherPlayer from './player/OtherPlayer';
 import WildPokemon from './pokemon/WildPokemon';
+import { useControls } from 'leva';
 import { OrbitControls } from '@react-three/drei';
 import { useSocketStore } from '$/stores/socketStore';
 
 export default function GameScene() {
     const { wildPokemon, remotePlayers } = useSocketStore();
+    const { seed, debug } = useControls('world', {
+        seed: '1234',
+        debug: false,
+    });
 
     return (
         <>
-            <OrbitControls />
+            <OrbitControls enabled={debug} />
             <Lighting />
-            {/* <Test /> */}
 
             {/* Physics World — ใช้ Suspense ครอบเพื่อให้ Rapier WASM โหลดเสร็จก่อน */}
-            <Suspense fallback={null}>
-                <Physics gravity={[0, -20, 0]}>
-                    <Terrain />
-                    <Player />
-                    {/* Remote Players (From Server) */}
-                    {Array.from(remotePlayers.entries()).map(([id, player]) => (
-                        <OtherPlayer key={id} player={player} />
-                    ))}
-                    <Trees />
-                </Physics>
-            </Suspense>
+            <Objects seed={seed} debug={debug} />
 
             {/* Wild Pokemon (From Server) */}
-            {wildPokemon && (
+            {/* {wildPokemon && (
                 <WildPokemon
                     name={wildPokemon.name}
                     position={[
@@ -45,7 +33,7 @@ export default function GameScene() {
                     ]}
                     pokemonId={wildPokemon.id}
                 />
-            )}
+            )} */}
         </>
     );
 }

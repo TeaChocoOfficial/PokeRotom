@@ -2,9 +2,18 @@
 import { Sky } from '@react-three/drei';
 import { useFrame } from '@react-three/fiber';
 import { useGameStore } from '$/stores/gameStore';
+import { useControls } from 'leva';
 
 export default function Lighting() {
-    const { time, addTime } = useGameStore();
+    const { time, addTime, setTime } = useGameStore();
+    const { daytime } = useControls('world', {
+        daytime: {
+            value: 1500,
+            min: 0,
+            max: 2400,
+            step: 0.1,
+        },
+    });
 
     const hour = (time / 100) % 24;
     const sunDistance = 800;
@@ -24,7 +33,8 @@ export default function Lighting() {
     ];
 
     useFrame((_, delta) => {
-        addTime(delta * 200);
+        // addTime(delta * 200);
+        setTime(daytime);
     });
 
     return (
