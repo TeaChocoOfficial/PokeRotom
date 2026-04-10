@@ -35,11 +35,55 @@ export class RoomGateway implements OnGatewayConnection, OnGatewayDisconnect {
     private clientRooms: Map<string, string> = new Map();
     private userSockets: Map<number, string> = new Map(); // uid -> socketId
     private globalRoom = 'global_channel';
+    private playerPositions: Map<
+        string,
+        {
+            socketId: string;
+            username: string;
+            position: { x: number; y: number; z: number };
+            rotation: { x: number; y: number; z: number };
+            movementState: string;
+        }
+    > = new Map();
 
     handleConnection(client: Socket) {
         this.logger.log(`Client connected: ${client.id}`);
         client.join(this.globalRoom);
+
+        // ส่งรายชื่อผู้เล่นทุกคนที่มีอยู่แล้วให้ผู้เล่นใหม่
+        const currentPlayers = Array.from(this.playerPositions.values());
+        client.emit('playersInit', currentPlayers);
+
+        // Auto-join Main World Room
+        const mainRoomId = 'WORLD_MAIN';
+        this.handleAutoJoinRoom(client, mainRoomId);
+
         client.emit('roomList', this.roomService.getAllPublicRooms());
+        this.broadcastPlayerCount();
+    }
+
+    private async handleAutoJoinRoom(client: Socket, roomId: string) {
+        let room = this.roomService.getRoom(roomId);
+        if (!room) {
+            // ถ้ายังไม่มีห้อง World หลัก ให้สร้างขึ้นมา (ID ฟิกซ์ไว้)
+            room = await this.roomService.createRoom('Main World', true);
+            // Override ID เพื่อให้ทุกคนเข้าห้องเดียวกัน
+            const rooms = (this.roomService as any).rooms;
+            const oldId = room.id;
+            rooms.delete(oldId);
+            room.id = roomId;
+            rooms.set(roomId, room);
+        }
+
+        client.join(roomId);
+        this.clientRooms.set(client.id, roomId);
+        this.roomService.updatePlayerCount(roomId, 1);
+
+        // ส่งส่งสถานะ Wild Pokemon ในห้องนั้น
+        const wildPokemon = this.roomService.getWildPokemon(roomId);
+        if (wildPokemon) {
+            client.emit('updateWildPokemon', { roomId, ...wildPokemon });
+        }
     }
 
     handleDisconnect(client: Socket) {
@@ -53,10 +97,43 @@ export class RoomGateway implements OnGatewayConnection, OnGatewayDisconnect {
             }
         }
 
+        // Remove from 3D world positions and notify others
+        this.playerPositions.delete(client.id);
+        this.server.emit('playerLeft', { socketId: client.id });
+        this.broadcastPlayerCount();
+
         const roomId = this.clientRooms.get(client.id);
         if (roomId) {
             this.leaveRoomLogic(client, roomId);
         }
+    }
+
+    @SubscribeMessage('playerMove')
+    handlePlayerMove(
+        @ConnectedSocket() client: Socket,
+        @MessageBody()
+        data: {
+            position: { x: number; y: number; z: number };
+            rotation: { x: number; y: number; z: number };
+            movementState: string;
+        },
+    ) {
+        const playerData = {
+            socketId: client.id,
+            username: `Player_${client.id.substring(0, 4)}`,
+            position: data.position,
+            rotation: data.rotation,
+            movementState: data.movementState,
+        };
+
+        this.playerPositions.set(client.id, playerData);
+        client.broadcast.emit('playerMoved', playerData);
+    }
+
+    private broadcastPlayerCount() {
+        const count =
+            this.server?.engine?.clientsCount || this.playerPositions.size;
+        this.server.emit('playersSync', { count });
     }
 
     @SubscribeMessage('getRooms')

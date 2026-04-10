@@ -88,7 +88,12 @@ export class RoomService {
     getWildPokemon(roomId: string) {
         const state = this.wildPokemonState.get(roomId);
         if (!state) return null;
-        return { id: state.id, attempts: state.attempts };
+        return { 
+            id: state.id, 
+            name: state.name, 
+            img: state.img,
+            attempts: state.attempts 
+        };
     }
 
     getFullWildPokemon(roomId: string) {

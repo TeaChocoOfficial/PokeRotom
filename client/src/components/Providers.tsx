@@ -1,12 +1,9 @@
-//-Path: "PokeRotom/client/src/components/Providers.tsx"
-import { pokeClient } from '../graphQL/pokeApi';
-import { BrowserRouter } from 'react-router-dom';
-import { ApolloProvider } from '@apollo/client/react';
+//-Path: "rod-ban-boontip/projects/client/src/components/providers/Providers.tsx"
+'use client';
+import '$/i18n/i18n';
+import Setup from './Setup';
+import { ReactNode } from 'react';
 
-export default function Providers({ children }: { children: React.ReactNode }) {
-    return (
-        <ApolloProvider client={pokeClient}>
-            <BrowserRouter>{children}</BrowserRouter>
-        </ApolloProvider>
-    );
+export default function Providers({ children }: { children: ReactNode }) {
+    return <Setup>{children}</Setup>;
 }

@@ -7,7 +7,7 @@ import { EnvConfig, envConfigs } from './dto/secure.dto';
 export class SecureService {
     constructor(private readonly configService: ConfigService) {}
 
-    isDev = () => this.getEnvConfig().VITE_MODE === 'development';
+    isDev = () => this.getEnvConfig().NEXT_MODE === 'development';
 
     getEnvConfig = (): EnvConfig =>
         envConfigs.reduce(
@@ -17,4 +17,10 @@ export class SecureService {
             }),
             {},
         );
+    getAllowedUrls(): string[] {
+        const env = this.getEnvConfig();
+        const allowedUrls = [env.CLIENT_URL ?? 'http://127.0.0.1:3000'];
+        allowedUrls.push('http://192.168.1.123:5173');
+        return allowedUrls;
+    }
 }

@@ -5,6 +5,7 @@ import cookieParserSDK from 'cookie-parser';
 import { SwaggerTheme } from 'swagger-themes';
 import { SecureService } from './secure/secure.service';
 import { Logger, ValidationPipe } from '@nestjs/common';
+import { SocketIoAdapter } from './api/socket/socket.adapter';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { SwaggerThemeNameEnum } from 'swagger-themes/build/enums';
 
@@ -15,12 +16,14 @@ async function bootstrap() {
     const { SERVER_HOST, SERVER_PORT, CLIENT_URL, MONGODB_URI } =
         secureService.getEnvConfig();
 
+    app.useWebSocketAdapter(new SocketIoAdapter(app, secureService));
     app.useGlobalPipes(new ValidationPipe());
     app.use(cookieParserSDK());
     app.enableCors({
-        origin: CLIENT_URL,
+        origin: secureService.getAllowedUrls(),
         methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
         credentials: true,
+        allowedHeaders: ['Content-Type', 'Authorization'],
     });
 
     if (secureService.isDev()) {
@@ -31,7 +34,7 @@ async function bootstrap() {
             .setDescription(
                 'Rest API for PokeRotom Projects. have many theme support. have /api-classic, /api-dark-monokai, /api-dark, /api-dracula, /api-feeling-blue, /api-flattop, /api-gruvbox, /api-material, /api-monokai, /api-muted, /api-newspaper, /api-nord-dark, /api-one-dark, /api-outline',
             )
-            .setVersion('0.0.1')
+            .setVersion('0.0.2')
             .build();
 
         const document = SwaggerModule.createDocument(app, config);

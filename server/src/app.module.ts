@@ -1,6 +1,7 @@
 //-Path: "PokeRotom/server/src/app.module.ts"
 import { Module } from '@nestjs/common';
 import { AppService } from './app.service';
+import { ApiModule } from './api/api.module';
 import { RoomModule } from './room/room.module';
 import { UserModule } from './user/user.module';
 import { AppController } from './app.controller';
@@ -11,6 +12,7 @@ import { InventoryModule } from './inventory/inventory.module';
 
 @Module({
     imports: [
+        ApiModule,
         UserModule,
         RoomModule,
         SecureModule,

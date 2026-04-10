@@ -1,0 +1,220 @@
+/* -Path: "PokeRotom/client/src/app/globals.css" */
+@import 'tailwindcss';
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+    /* Primary - Orange Theme */
+    --primary: #f57a3d;
+    --primary-dark: #c2410c;
+    --primary-light: #fb923c;
+    --primary-50: #fff7ed;
+    --primary-100: #ffedd5;
+    --primary-200: #fed7aa;
+    --primary-300: #fdba74;
+    --primary-400: #fb923c;
+    --primary-500: #f57a3d;
+    --primary-600: #ea580c;
+    --primary-700: #c2410c;
+    --primary-800: #9a3412;
+    --primary-900: #7c2d12;
+
+    /* Neutral Colors */
+    --background: #ffffff;
+    --foreground: #171717;
+    --card: #f8fafc;
+    --card-foreground: #0f172a;
+    --border: #e2e8f0;
+    --input: #e2e8f0;
+    --muted: #f1f5f9;
+    --muted-foreground: #64748b;
+    --accent: #f1f5f9;
+    --accent-foreground: #0f172a;
+
+    /* Semantic Colors */
+    --success: #22c55e;
+    --warning: #f59e0b;
+    --error: #ef4444;
+    --info: #3b82f6;
+}
+
+.dark {
+    /* Primary - Orange Theme (Lighter for dark mode) */
+    --primary: #fb923c;
+    --primary-dark: #ea580c;
+    --primary-light: #fdba74;
+    --primary-50: #431407;
+    --primary-100: #7c2d12;
+    --primary-200: #9a3412;
+    --primary-300: #c2410c;
+    --primary-400: #ea580c;
+    --primary-500: #fb923c;
+    --primary-600: #fdba74;
+    --primary-700: #fed7aa;
+    --primary-800: #ffedd5;
+    --primary-900: #fff7ed;
+
+    /* Neutral Colors */
+    --background: #0a0a0a;
+    --foreground: #fafafa;
+    --card: #171717;
+    --card-foreground: #fafafa;
+    --border: #27272a;
+    --input: #27272a;
+    --muted: #262626;
+    --muted-foreground: #a1a1aa;
+    --accent: #262626;
+    --accent-foreground: #fafafa;
+
+    /* Semantic Colors */
+    --success: #4ade80;
+    --warning: #fbbf24;
+    --error: #f87171;
+    --info: #60a5fa;
+}
+
+@theme inline {
+    --color-background: var(--background);
+    --color-foreground: var(--foreground);
+    --color-primary: var(--primary);
+    --color-primary-dark: var(--primary-dark);
+    --color-primary-light: var(--primary-light);
+    --color-primary-50: var(--primary-50);
+    --color-primary-100: var(--primary-100);
+    --color-primary-200: var(--primary-200);
+    --color-primary-300: var(--primary-300);
+    --color-primary-400: var(--primary-400);
+    --color-primary-500: var(--primary-500);
+    --color-primary-600: var(--primary-600);
+    --color-primary-700: var(--primary-700);
+    --color-primary-800: var(--primary-800);
+    --color-primary-900: var(--primary-900);
+    --color-card: var(--card);
+    --color-card-foreground: var(--card-foreground);
+    --color-border: var(--border);
+    --color-input: var(--input);
+    --color-muted: var(--muted);
+    --color-muted-foreground: var(--muted-foreground);
+    --color-accent: var(--accent);
+    --color-accent-foreground: var(--accent-foreground);
+    --color-success: var(--success);
+    --color-warning: var(--warning);
+    --color-error: var(--error);
+    --color-info: var(--info);
+    --font-sans: var(--font-geist-sans);
+    --font-mono: var(--font-geist-mono);
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --background: #0a0a0a;
+        --foreground: #ededed;
+    }
+}
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+@layer base {
+    :root {
+        color-scheme: light dark;
+    }
+
+    body {
+        @apply flex-1 h-screen w-screen min-h-screen min-w-screen max-h-screen max-w-screen bg-background text-foreground;
+    }
+
+    /* Scrollbar Styling */
+    ::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+        background: theme(--color-slate-900);
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background: theme(--color-slate-700);
+        border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+        background: theme(--color-slate-600);
+    }
+}
+
+@layer type-component {
+    .type-component {
+        @apply px-6 py-2 rounded-2xl text-sm font-black uppercase tracking-[0.2em] shadow-lg border-b-4 border-black/20 text-white;
+    }
+
+    .type-component.fire {
+        @apply bg-red-500;
+    }
+
+    .type-component.water {
+        @apply bg-blue-500;
+    }
+
+    .type-component.electric {
+        @apply bg-yellow-500;
+    }
+
+    .type-component.grass {
+        @apply bg-green-500;
+    }
+
+    .type-component.ice {
+        @apply bg-cyan-500;
+    }
+
+    .type-component.fighting {
+        @apply bg-red-500;
+    }
+
+    .type-component.poison {
+        @apply bg-purple-500;
+    }
+
+    .type-component.ground {
+        @apply bg-yellow-500;
+    }
+
+    .type-component.flying {
+        @apply bg-blue-500;
+    }
+
+    .type-component.psychic {
+        @apply bg-purple-500;
+    }
+
+    .type-component.bug {
+        @apply bg-green-500;
+    }
+
+    .type-component.rock {
+        @apply bg-gray-500;
+    }
+
+    .type-component.ghost {
+        @apply bg-purple-500;
+    }
+
+    .type-component.dragon {
+        @apply bg-blue-500;
+    }
+
+    .type-component.steel {
+        @apply bg-gray-500;
+    }
+
+    .type-component.dark {
+        @apply bg-gray-500;
+    }
+
+    .type-component.fairy {
+        @apply bg-pink-500;
+    }
+}
