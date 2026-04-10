@@ -12,18 +12,22 @@ export default function Screen() {
     return (
         <div className="relative w-full h-full overflow-hidden">
             <Suspense fallback={<LoadingScreen />}>
-                <KeyBoardProvider>
-                    <Canvas
-                        shadows
-                        camera={{ position: [0, 10, 20], fov: 60 }}
-                        gl={{
-                            antialias: true,
-                            powerPreference: 'high-performance',
-                        }}
-                    >
-                        <GameScene />
-                    </Canvas>
-                </KeyBoardProvider>
+                {/* <KeyBoardProvider> */}
+                <Canvas
+                    shadows
+                    camera={{ position: [10, 10, 20], fov: 60 }}
+                    gl={{
+                        antialias: true,
+                        powerPreference: 'high-performance',
+                    }}
+                >
+                    <mesh>
+                        <boxGeometry />
+                        <meshBasicMaterial color="red" />
+                    </mesh>
+                    {/* <GameScene /> */}
+                </Canvas>
+                {/* </KeyBoardProvider> */}
                 <FPSCounter />
                 <GameHUD />
             </Suspense>
