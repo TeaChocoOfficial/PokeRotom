@@ -1,0 +1,43 @@
+{
+    "game": {
+        "title": "PokeRotom World",
+        "loading": "กำลังโหลด...",
+        "connecting": "กำลังเชื่อมต่อ...",
+        "connected": "เชื่อมต่อแล้ว",
+        "disconnected": "ขาดการเชื่อมต่อ",
+        "players_online": "ผู้เล่นออนไลน์: {{count}} คน"
+    },
+    "controls": {
+        "move": "W A S D เดิน",
+        "run": "Shift วิ่ง",
+        "interact": "E ตอบโต้",
+        "camera": "เมาส์ หมุนกล้อง",
+        "chat": "Enter แชท",
+        "settings": "ESC ตั้งค่า"
+    },
+    "settings": {
+        "title": "ตั้งค่า",
+        "language": "ภาษา",
+        "theme": "ธีม",
+        "dark": "มืด",
+        "light": "สว่าง",
+        "volume": "เสียง",
+        "close": "ปิด"
+    },
+    "chat": {
+        "placeholder": "พิมพ์ข้อความ...",
+        "send": "ส่ง",
+        "global": "ทั่วโลก",
+        "room": "ห้อง"
+    },
+    "pokemon": {
+        "wild_appeared": "{{name}} ป่าปรากฏตัว!",
+        "caught": "จับ {{name}} ได้แล้ว!",
+        "escaped": "โปเกม่อนหนีไปแล้ว!"
+    },
+    "hud": {
+        "minimap": "แผนที่ย่อ",
+        "position": "ตำแหน่ง",
+        "fps": "FPS"
+    }
+}

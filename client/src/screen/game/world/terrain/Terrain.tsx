@@ -1,15 +1,11 @@
-// -Path: "PokeRotom/client/src/screen/game/world/Terrain.tsx"
-'use client';
+// -Path: "PokeRotom/client/src/screen/game/world/terrain/Terrain.tsx"
+import { useMemo } from 'react';
 import { simplex2 } from './noise';
-import { ChunkType } from './chunk';
+import { type ChunkType } from './chunk';
 import TerrainChunk from './TerrainChunk';
-import { useMemo, useState } from 'react';
+import { RENDER_DISTANCE } from './chunk';
 import { createNoise2D } from 'simplex-noise';
 import { useGameStore } from '$/stores/gameStore';
-
-const RENDER_DISTANCE = 2;
-export const CHUNK_SIZE = 64;
-export const CHUNK_SEGMENTS = 32;
 
 /** คำนวณความสูงของพื้นจาก noise (ใช้ world position) */
 export function getTerrainHeight(

@@ -1,5 +1,4 @@
 // -Path: "PokeRotom/client/src/i18n/i18n.ts"
-'use client';
 import i18n from 'i18next';
 import thLocale from './locales/th.json';
 import enLocale from './locales/en.json';

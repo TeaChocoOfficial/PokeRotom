@@ -1,5 +1,4 @@
 // -Path: "PokeRotom/client/src/screen/components/FPSCounter.tsx"
-'use client';
 import { useEffect } from 'react';
 import { useGameStore } from '$/stores/gameStore';
 

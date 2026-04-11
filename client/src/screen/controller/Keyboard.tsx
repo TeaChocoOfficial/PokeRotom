@@ -1,7 +1,9 @@
 //-Path: "PokeRotom/client/src/screen/controller/Keyboard.tsx"
-'use client';
+import {
+    KeyboardControls,
+    type KeyboardControlsEntry,
+} from '@react-three/drei';
 import { useMemo } from 'react';
-import { KeyboardControls, KeyboardControlsEntry } from '@react-three/drei';
 
 export enum Controls {
     left = 'left',

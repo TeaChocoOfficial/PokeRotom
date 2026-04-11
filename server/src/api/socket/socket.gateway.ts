@@ -95,4 +95,19 @@ export class SocketGateway
             this.server?.engine?.clientsCount || this.playerPositions.size;
         this.server.emit('playersSync', { count });
     }
+
+    @SubscribeMessage('sendMessageGlobal')
+    handleGlobalMessage(
+        @MessageBody()
+        data: {
+            sender: string;
+            message: string;
+            senderUid: number;
+        },
+    ) {
+        this.server.to(this.globalRoom).emit('messageGlobal', {
+            ...data,
+            timestamp: new Date().toISOString(),
+        });
+    }
 }

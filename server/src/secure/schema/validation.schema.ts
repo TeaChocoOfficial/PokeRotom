@@ -3,12 +3,12 @@ import Joi from 'joi';
 
 export const validationSchema = Joi.object({
     // Core application settings
-    MODE: Joi.string()
+    VITE_MODE: Joi.string()
         .valid('development', 'production', 'test', 'staging')
         .default('development'),
 
     // Client settings
-    API_TOKEN_KEY: Joi.string()
+    VITE_API_TOKEN_KEY: Joi.string()
         .min(16)
         .required()
         .description('API token key for client-side authentication'),

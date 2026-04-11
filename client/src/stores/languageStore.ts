@@ -1,7 +1,6 @@
 // -Path: "PokeRotom/client/src/stores/languageStore.ts"
-'use client';
 import { create } from 'zustand';
-import { Language, LanguageType } from '$/types/language';
+import { Language, type LanguageType } from '$/types/language';
 
 function getDefaultLanguage(): LanguageType {
     if (typeof window === 'undefined') return Language.EN;

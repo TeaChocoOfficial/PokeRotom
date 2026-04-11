@@ -1,8 +1,7 @@
-// -Path: "PokeRotom/client/src/app/page.tsx"
-'use client';
+// -Path: "PokeRotom/client/src/App.tsx"
 import Screen from '$/screen/Screen';
 
-export default function Home() {
+export default function App() {
     return (
         <div className="w-full h-full">
             <Screen />

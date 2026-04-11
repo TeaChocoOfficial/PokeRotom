@@ -14,8 +14,8 @@ export class SocketMiddleware implements NestMiddleware {
         if (!tokenKey) return next(new Error('Token key not provided'));
         if (typeof tokenKey === 'string' && tokenKey.startsWith('Bearer ')) {
             const token = tokenKey.split(' ')[1];
-            const { API_TOKEN_KEY } = this.secureService.getEnvConfig();
-            if (token === API_TOKEN_KEY) return next();
+            const { VITE_API_TOKEN_KEY } = this.secureService.getEnvConfig();
+            if (token === VITE_API_TOKEN_KEY) return next();
             return next(new Error('Forbidden'));
         }
         return next(new Error('Unapporized'));

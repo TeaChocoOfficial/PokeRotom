@@ -1,9 +1,8 @@
 // -Path: "PokeRotom/client/src/screen/hud/SettingsPanel.tsx"
-'use client';
 import { useTranslation } from 'react-i18next';
-import { LanguageType } from '$/types/language';
 import { useGameStore } from '$/stores/gameStore';
 import { useThemeStore } from '$/stores/themeStore';
+import { type LanguageType } from '$/types/language';
 import { useLanguageStore } from '$/stores/languageStore';
 
 const LANGUAGES: { code: LanguageType; label: string; flag: string }[] = [

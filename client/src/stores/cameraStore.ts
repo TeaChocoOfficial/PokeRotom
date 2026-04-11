@@ -1,5 +1,4 @@
 // -Path: "PokeRotom/client/src/stores/cameraStore.ts"
-'use client';
 import * as THREE from 'three';
 import { create } from 'zustand';
 

@@ -1,8 +1,7 @@
 // -Path: "PokeRotom/client/src/stores/socketStore.ts"
+import env from '$/secure/env';
 import { create } from 'zustand';
 import { io, Socket } from 'socket.io-client';
-
-const SERVER_URL = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:3000';
 
 export interface RemotePlayer {
     socketId: string;
@@ -54,9 +53,9 @@ export const useSocketStore = create<SocketState>()((set, get) => ({
     connect: () => {
         const existingSocket = get().socket;
         if (existingSocket?.connected) return;
-        const socket = io(SERVER_URL, {
+        const socket = io(env.API_URL, {
             auth: {
-                tokenKey: `Bearer ${process.env.NEXT_PUBLIC_API_TOKEN_KEY}`,
+                tokenKey: `Bearer ${env.API_TOKEN_KEY}`,
             },
             transports: ['websocket'],
             autoConnect: true,

@@ -1,17 +1,17 @@
 //-Path: "PokeRotom/client/src/screen/game/world/tree/Trees.tsx"
-'use client';
+import {
+    CylinderCollider,
+    type RigidBodyProps,
+    InstancedRigidBodies,
+    type InstancedRigidBodyProps,
+} from '@react-three/rapier';
 import * as THREE from 'three';
 import { useMemo } from 'react';
+import { CHUNK_SIZE } from '../terrain/chunk';
 import { useGameStore } from '$/stores/gameStore';
+import { getTerrainHeight } from '../terrain/Terrain';
 import { simplex2, createSeededRng } from '../terrain/noise';
-import { CHUNK_SIZE, getTerrainHeight } from '../terrain/Terrain';
 import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
-import {
-    RigidBodyProps,
-    CylinderCollider,
-    InstancedRigidBodies,
-    InstancedRigidBodyProps,
-} from '@react-three/rapier';
 
 const RENDER_DISTANCE = 2;
 const FOREST_DENSITY = 10;

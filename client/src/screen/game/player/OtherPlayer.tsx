@@ -8,6 +8,7 @@ import { useFrame } from '@react-three/fiber';
 import type { RemotePlayer } from '$/stores/socketStore';
 import type { RapierRigidBody } from '@react-three/rapier';
 import { RigidBody, CapsuleCollider } from '@react-three/rapier';
+import BoardText from '../entity/BoardText';
 
 interface OtherPlayerProps {
     player: RemotePlayer;
@@ -80,18 +81,10 @@ export default function OtherPlayer({ player }: OtherPlayerProps) {
             <CapsuleCollider args={[0.5, 0.4]} position={[0, 0.9, 0]} />
 
             {/* Username - ใช้ Billboard เพื่อให้หันตามกล้องตลอดเวลา */}
-            <Billboard position={[0, 2.8, 0]}>
-                <Text
-                    fontSize={0.3}
-                    color="#ffffff"
-                    anchorX="center"
-                    anchorY="bottom"
-                    outlineWidth={0.02}
-                    outlineColor="#000000"
-                >
-                    {player.username || 'Player'}
-                </Text>
-            </Billboard>
+            <BoardText
+                position={[0, 2.8, 0]}
+                text={player.username || 'Player'}
+            />
 
             {/* ใช้ PlayerModel ร่วมกันและส่งสีโทนน้ำเงินสำหรับผู้เล่นคนอื่น */}
             <PlayerModel

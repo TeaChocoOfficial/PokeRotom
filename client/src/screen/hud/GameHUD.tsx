@@ -2,6 +2,7 @@
 'use client';
 import ChatOverlay from './ChatOverlay';
 import SettingsPanel from './SettingsPanel';
+import Joystick from '../components/Joystick';
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useGameStore } from '$/stores/gameStore';
@@ -9,15 +10,11 @@ import { useSocketStore } from '$/stores/socketStore';
 
 export default function GameHUD() {
     const { t } = useTranslation();
-    const { fps } = useGameStore();
-    const { time } = useGameStore();
-    const { player } = useGameStore();
-    const { playerCount } = useSocketStore();
-    const { isConnected } = useSocketStore();
-    const { isSettingsOpen } = useGameStore();
-    const { setSettingsOpen } = useGameStore();
     const [mounted, setMounted] = useState(false);
+    const { isConnected, playerCount } = useSocketStore();
     const [showControls, setShowControls] = useState(true);
+    const { fps, time, player, isSettingsOpen, setSettingsOpen } =
+        useGameStore();
 
     useEffect(() => {
         setMounted(true);
@@ -112,29 +109,32 @@ export default function GameHUD() {
                 </div>
             </div>
 
-            {/* Bottom-left: Controls hint */}
-            {showControls && (
-                <div
-                    className="absolute bottom-4 left-4 px-4 py-3 rounded-xl text-xs leading-6"
-                    style={{
-                        color: '#e2e8f0',
-                        backdropFilter: 'blur(8px)',
-                        background: 'rgba(0,0,0,0.5)',
-                    }}
-                >
-                    <div className="font-bold mb-1 text-primary-400">
-                        ⌨️ Controls
+            {/* Bottom-left: Controls hint & Joystick */}
+            <div className="absolute bottom-4 left-4 flex flex-col gap-6 items-start">
+                {showControls && (
+                    <div
+                        className="px-4 py-3 rounded-xl text-xs leading-6"
+                        style={{
+                            color: '#e2e8f0',
+                            backdropFilter: 'blur(8px)',
+                            background: 'rgba(0,0,0,0.5)',
+                        }}
+                    >
+                        <div className="font-bold mb-1 text-primary-400">
+                            ⌨️ Controls
+                        </div>
+                        <div>{t('controls.move')}</div>
+                        <div>{t('controls.run')}</div>
+                        <div>{t('controls.camera')}</div>
+                        <div>{t('controls.chat')}</div>
+                        <div>{t('controls.settings')}</div>
+                        <div className="text-muted-foreground mt-1 text-[10px]">
+                            F1 toggle
+                        </div>
                     </div>
-                    <div>{t('controls.move')}</div>
-                    <div>{t('controls.run')}</div>
-                    <div>{t('controls.camera')}</div>
-                    <div>{t('controls.chat')}</div>
-                    <div>{t('controls.settings')}</div>
-                    <div className="text-muted-foreground mt-1 text-[10px]">
-                        F1 toggle
-                    </div>
-                </div>
-            )}
+                )}
+                <Joystick />
+            </div>
 
             {/* Chat overlay */}
             <ChatOverlay />

@@ -1,10 +1,10 @@
 // -Path: "PokeRotom/client/src/screen/game/world/terrain/TerrainChunk.tsx"
-'use client';
 import * as THREE from 'three';
 import { memo, useMemo } from 'react';
 import { createNoise2D } from 'simplex-noise';
 import { RigidBody } from '@react-three/rapier';
-import { CHUNK_SIZE, CHUNK_SEGMENTS, getTerrainHeight } from './Terrain';
+import { getTerrainHeight } from '$/screen/game/world/terrain/Terrain';
+import { CHUNK_SIZE, CHUNK_SEGMENTS } from '$/screen/game/world/terrain/chunk';
 
 interface TerrainChunkProps {
     seed: string;

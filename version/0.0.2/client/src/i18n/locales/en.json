@@ -1,0 +1,43 @@
+{
+    "game": {
+        "title": "PokeRotom World",
+        "loading": "Loading...",
+        "connecting": "Connecting...",
+        "connected": "Connected",
+        "disconnected": "Disconnected",
+        "players_online": "Players online: {{count}}"
+    },
+    "controls": {
+        "move": "W A S D Move",
+        "run": "Shift Run",
+        "interact": "E Interact",
+        "camera": "Mouse Rotate Camera",
+        "chat": "Enter Chat",
+        "settings": "ESC Settings"
+    },
+    "settings": {
+        "title": "Settings",
+        "language": "Language",
+        "theme": "Theme",
+        "dark": "Dark",
+        "light": "Light",
+        "volume": "Volume",
+        "close": "Close"
+    },
+    "chat": {
+        "placeholder": "Type a message...",
+        "send": "Send",
+        "global": "Global",
+        "room": "Room"
+    },
+    "pokemon": {
+        "wild_appeared": "Wild {{name}} appeared!",
+        "caught": "{{name}} was caught!",
+        "escaped": "The Pokémon escaped!"
+    },
+    "hud": {
+        "minimap": "Minimap",
+        "position": "Position",
+        "fps": "FPS"
+    }
+}

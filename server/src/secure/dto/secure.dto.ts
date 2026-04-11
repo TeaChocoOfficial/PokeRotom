@@ -1,8 +1,8 @@
 //-Path: "PokeRotom/server/src/secure/dto/secure.dto.ts"
 
 export const envConfigs = [
-    'MODE',
-    'API_TOKEN_KEY',
+    'VITE_MODE',
+    'VITE_API_TOKEN_KEY',
     'CLIENT_URL',
     'SERVER_HOST',
     'SERVER_PORT',

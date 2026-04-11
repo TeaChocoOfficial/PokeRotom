@@ -1,16 +1,15 @@
 // -Path: "PokeRotom/client/src/screen/game/player/Player.tsx"
-'use client';
 import * as THREE from 'three';
-import { useRef } from 'react';
+import { useRef, useEffect } from 'react';
 import PlayerModel from './PlayerModel';
 import { useGameStore } from '$/stores/gameStore';
 import { useSocketStore } from '$/stores/socketStore';
 import { useCameraStore } from '$/stores/cameraStore';
+import { getPlayerChunk } from '../world/terrain/chunk';
 import { usePlayerInput } from '$/hooks/usePlayerInput';
 import { useFrame, useThree } from '@react-three/fiber';
 import type { RapierRigidBody } from '@react-three/rapier';
 import { RigidBody, CapsuleCollider } from '@react-three/rapier';
-import { getPlayerChunk } from '../world/terrain/chunk';
 
 const PLAYER_ROT_SPEED = 12;
 
@@ -18,14 +17,39 @@ export default function Player({ debug }: { debug?: boolean }) {
     const { camera } = useThree();
     const lastEmitTime = useRef(0);
     const keysRef = usePlayerInput();
+    const touchLastX = useRef<number | null>(null);
     const meshRef = useRef<THREE.Group>(null);
     const { emitPlayerMove } = useSocketStore();
     const bodyRef = useRef<RapierRigidBody>(null);
-    const smoothCamPos = useRef(new THREE.Vector3(0, 12, 14));
     const smoothLookAt = useRef(new THREE.Vector3(0, 1.5, 0));
-    const { yaw, offset, lookOffset, lerpSpeed } = useCameraStore();
+    const smoothCamPos = useRef(new THREE.Vector3(0, 12, 14));
+    const { addYaw, yaw, offset, lookOffset, lerpSpeed } = useCameraStore();
     const { setPlayerPosition, setMovementState, setPlayerChunk } =
         useGameStore();
+
+    useEffect(() => {
+        const handleTouchStart = (event: TouchEvent) => {
+            // Only rotate if touch is on the right half of the screen to avoid joystick conflict
+            if (event.touches[0].clientX > window.innerWidth / 2)
+                touchLastX.current = event.touches[0].clientX;
+        };
+        const handleTouchMove = (event: TouchEvent) => {
+            if (touchLastX.current === null) return;
+            const deltaX = event.touches[0].clientX - touchLastX.current;
+            touchLastX.current = event.touches[0].clientX;
+            addYaw(-deltaX * 0.005);
+        };
+        const handleTouchEnd = () => (touchLastX.current = null);
+
+        window.addEventListener('touchstart', handleTouchStart);
+        window.addEventListener('touchmove', handleTouchMove);
+        window.addEventListener('touchend', handleTouchEnd);
+        return () => {
+            window.removeEventListener('touchstart', handleTouchStart);
+            window.removeEventListener('touchmove', handleTouchMove);
+            window.removeEventListener('touchend', handleTouchEnd);
+        };
+    }, [addYaw]);
 
     useFrame((_, delta) => {
         if (!bodyRef.current || !meshRef.current) return;

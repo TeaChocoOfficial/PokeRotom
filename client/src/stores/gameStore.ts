@@ -1,5 +1,4 @@
 // -Path: "PokeRotom/client/src/stores/gameStore.ts"
-'use client';
 import * as THREE from 'three';
 import { create } from 'zustand';
 
@@ -17,15 +16,17 @@ interface GameState {
     time: number;
     chunk: THREE.Vector3;
     player: PlayerState;
-    isMenuOpen: boolean;
     isChatOpen: boolean;
+    isMenuOpen: boolean;
     isChatFocused: boolean;
     isSettingsOpen: boolean;
+    joystick: { x: number; y: number };
     setFps: (fps: number) => void;
     setTime: (time: number) => void;
     addTime: (time: number) => void;
     setChatOpen: (open: boolean) => void;
     setMenuOpen: (open: boolean) => void;
+    toggleChatOpen: () => void;
     setSettingsOpen: (open: boolean) => void;
     setChatFocused: (focused: boolean) => void;
     setPlayerChunk: (chunk: THREE.Vector3) => void;
@@ -33,6 +34,7 @@ interface GameState {
     setPlayerRotation: (rotation: THREE.Euler) => void;
     setPlayerPosition: (position: THREE.Vector3) => void;
     setPlayerVelocity: (velocity: THREE.Vector3) => void;
+    setJoystick: (joystick: { x: number; y: number }) => void;
 }
 
 export const useGameStore = create<GameState>()((set) => ({
@@ -49,13 +51,16 @@ export const useGameStore = create<GameState>()((set) => ({
     isMenuOpen: false,
     isChatFocused: false,
     isSettingsOpen: false,
+    joystick: { x: 0, y: 0 },
     setFps: (fps) => set({ fps }),
     setTime: (time) => set({ time }),
     addTime: (time) => set((state) => ({ time: state.time + time })),
     setChatOpen: (isChatOpen) => set({ isChatOpen }),
     setMenuOpen: (isMenuOpen) => set({ isMenuOpen }),
+    toggleChatOpen: () => set((state) => ({ isChatOpen: !state.isChatOpen })),
     setChatFocused: (isChatFocused) => set({ isChatFocused }),
     setSettingsOpen: (isSettingsOpen) => set({ isSettingsOpen }),
+    setJoystick: (joystick) => set({ joystick }),
     setPlayerChunk: (chunk) =>
         set((state) => {
             const prevChunk = state.chunk;

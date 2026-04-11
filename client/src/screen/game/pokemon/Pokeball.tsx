@@ -1,6 +1,6 @@
 // -Path: "PokeRotom/client/src/screen/game/pokemon/Pokeball.tsx"
 import { forwardRef } from 'react';
-import { Euler, Vector3 } from '@react-three/fiber';
+import type { Euler, Vector3 } from '@react-three/fiber';
 
 const Pokeball = forwardRef(
     (

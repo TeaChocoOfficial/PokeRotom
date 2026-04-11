@@ -1,8 +1,8 @@
 import * as THREE from 'three';
 
-const RENDER_DISTANCE = 2;
 export const CHUNK_SIZE = 64;
 export const CHUNK_SEGMENTS = 32;
+export const RENDER_DISTANCE = 2;
 
 export type ChunkType = {
     key: string;
