@@ -40,6 +40,7 @@ export default function Joystick() {
 
     const handleEnd = useCallback(() => {
         setActive(false);
+        setPos({ x: 0, y: 0 });
         setJoystick({ x: 0, y: 0 });
         setBasePos({ x: 120, y: window.innerHeight - 120 });
     }, [setJoystick]);
