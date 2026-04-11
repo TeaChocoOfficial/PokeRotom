@@ -44,9 +44,9 @@ export default defineConfig(({ mode }) => {
             babel({ presets: [reactCompilerPreset()] }),
         ],
         server: {
-            strictPort: true,
             port: port || 8000,
             host: host || '0.0.0.0',
+            strictPort: isDev ? true : undefined,
             hmr:
                 isDev && host && port
                     ? {
