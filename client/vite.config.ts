@@ -34,6 +34,7 @@ export default defineConfig(({ mode }) => {
     const env = loadEnv(mode, process.cwd(), '');
     const host = env.VITE_CLIENT_HOST;
     const port = Number(env.VITE_CLIENT_PORT);
+    const isDev = env.VITE_MODE === 'development';
 
     return {
         resolve: { alias: alias },
@@ -47,14 +48,14 @@ export default defineConfig(({ mode }) => {
             port: port || 8000,
             host: host || '0.0.0.0',
             hmr:
-                host && port
+                isDev && host && port
                     ? {
                           protocol: 'ws',
                           host: host === '0.0.0.0' ? 'localhost' : host,
                           port,
                       }
                     : undefined,
-            watch: { ignored: ['**/src-tauri/**'] },
+            watch: isDev ? { ignored: ['**/src-tauri/**'] } : undefined,
         },
     };
 });

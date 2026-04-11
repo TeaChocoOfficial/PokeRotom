@@ -1,6 +1,0 @@
-# -Path: "PokeRotom/client/.dockerignore"
-node_modules
-dist
-.git
-.gitignore
-README.md
