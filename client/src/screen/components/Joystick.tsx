@@ -1,26 +1,105 @@
 // -Path: "PokeRotom/client/src/screen/components/Joystick.tsx"
-import { useGameStore } from '$/stores/gameStore';
+import { Vector2 } from 'three';
 import { useThemeStore } from '$/stores/themeStore';
 import { useState, useCallback, useEffect } from 'react';
 
-export default function Joystick() {
-    const radius = 64;
+const resetBasePos = (radius: number): Vector2 =>
+    new Vector2(radius * 1.5, window.innerHeight - radius * 1.5);
+
+export type JoystickDynamic =
+    | 'top'
+    | 'left'
+    | 'right'
+    | 'bottom'
+    | 'left-top'
+    | 'right-top'
+    | 'left-bottom'
+    | 'right-bottom';
+
+export default function Joystick({
+    radius = 64,
+    setValue,
+    dynamic,
+}: {
+    radius?: number;
+    dynamic?: JoystickDynamic;
+    setValue: (value: Vector2) => void;
+}) {
     const { theme } = useThemeStore();
-    const { setJoystick } = useGameStore();
     const [active, setActive] = useState(false);
     const [pos, setPos] = useState({ x: 0, y: 0 });
-    const [basePos, setBasePos] = useState({ x: 120, y: 600 });
+    const [basePos, setBasePos] = useState(resetBasePos(radius));
 
     useEffect(() => {
-        setBasePos({ x: 120, y: window.innerHeight - 120 });
+        setBasePos(resetBasePos(radius));
     }, []);
 
-    const handleStart = useCallback((clientX: number, clientY: number) => {
-        if (clientX > window.innerWidth / 2) return;
-        setActive(true);
-        setBasePos({ x: clientX, y: clientY });
-        setPos({ x: 0, y: 0 });
-    }, []);
+    const handleStart = useCallback(
+        (clientX: number, clientY: number) => {
+            if (!dynamic) {
+                const deltaX = clientX - basePos.x;
+                const deltaY = clientY - basePos.y;
+                const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+                if (distance > radius * 2.5) return;
+
+                const limitedDistance = Math.min(distance, radius);
+                const angle = Math.atan2(deltaY, deltaX);
+                const x = Math.cos(angle) * limitedDistance;
+                const y = Math.sin(angle) * limitedDistance;
+
+                setActive(true);
+                setPos({ x, y });
+                setValue(new Vector2(x / radius, y / radius));
+            } else {
+                switch (dynamic) {
+                    case 'left':
+                        if (clientX > window.innerWidth / 2) return;
+                        break;
+                    case 'right':
+                        if (clientX < window.innerWidth / 2) return;
+                        break;
+                    case 'top':
+                        if (clientY > window.innerHeight / 2) return;
+                        break;
+                    case 'bottom':
+                        if (clientY < window.innerHeight / 2) return;
+                        break;
+                    case 'left-top':
+                        if (
+                            clientX > window.innerWidth / 2 ||
+                            clientY > window.innerHeight / 2
+                        )
+                            return;
+                        break;
+                    case 'right-top':
+                        if (
+                            clientX < window.innerWidth / 2 ||
+                            clientY > window.innerHeight / 2
+                        )
+                            return;
+                        break;
+                    case 'left-bottom':
+                        if (
+                            clientX > window.innerWidth / 2 ||
+                            clientY < window.innerHeight / 2
+                        )
+                            return;
+                        break;
+                    case 'right-bottom':
+                        if (
+                            clientX < window.innerWidth / 2 ||
+                            clientY < window.innerHeight / 2
+                        )
+                            return;
+                        break;
+                }
+                setActive(true);
+                setBasePos(new Vector2(clientX, clientY));
+                setPos({ x: 0, y: 0 });
+            }
+        },
+        [basePos, dynamic, radius, setValue],
+    );
 
     const handleMove = useCallback(
         (clientX: number, clientY: number) => {
@@ -33,21 +112,21 @@ export default function Joystick() {
             const x = Math.cos(angle) * limitedDistance;
             const y = Math.sin(angle) * limitedDistance;
             setPos({ x, y });
-            setJoystick({ x: x / radius, y: y / radius });
+            setValue(new Vector2(x / radius, y / radius));
         },
-        [active, basePos, setJoystick],
+        [active, basePos, setValue],
     );
 
     const handleEnd = useCallback(() => {
         setActive(false);
         setPos({ x: 0, y: 0 });
-        setJoystick({ x: 0, y: 0 });
-        setBasePos({ x: 120, y: window.innerHeight - 120 });
-    }, [setJoystick]);
+        setValue(new Vector2(0, 0));
+        setBasePos(resetBasePos(radius));
+    }, [setValue]);
 
     return (
         <div
-            className="fixed inset-0 z-50 pointer-events-auto select-none"
+            className="fixed inset-0 pointer-events-auto select-none"
             onMouseDown={(e) => handleStart(e.clientX, e.clientY)}
             onMouseMove={(e) => active && handleMove(e.clientX, e.clientY)}
             onMouseUp={handleEnd}

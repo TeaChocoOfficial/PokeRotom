@@ -4,10 +4,9 @@ import { useControls } from 'leva';
 import Lighting from './world/Lighting';
 import { OrbitControls } from '@react-three/drei';
 
-export default function GameScene() {
-    const { seed, debug } = useControls('world', {
-        seed: '1234',
-        debug: false,
+export default function GameScene({ debug }: { debug?: boolean }) {
+    const { seed } = useControls('world', {
+        seed: 't1234',
     });
 
     return (

@@ -121,11 +121,14 @@ body {
         color-scheme: light dark;
     }
 
+    html,
     body,
     #root {
         @apply flex-1 h-dvh w-dvw min-h-dvh min-w-dvw max-h-dvh max-w-dvw bg-background text-foreground;
-        touch-action: manipulation;
         overscroll-behavior: none;
+        touch-action: none;
+        overflow: hidden;
+        position: fixed;
     }
 
     /* Scrollbar Styling */

@@ -3,8 +3,8 @@ import * as THREE from 'three';
 import { memo, useMemo } from 'react';
 import { createNoise2D } from 'simplex-noise';
 import { RigidBody } from '@react-three/rapier';
-import { getTerrainHeight } from '$/screen/game/world/terrain/Terrain';
-import { CHUNK_SIZE, CHUNK_SEGMENTS } from '$/screen/game/world/terrain/chunk';
+import useNoise from '$/screen/game/world/hooks/noise';
+import useChunk from '$/screen/game/world/hooks/chunk';
 
 interface TerrainChunkProps {
     seed: string;
@@ -17,9 +17,22 @@ const grassColor = new THREE.Color('#61b281');
 const dirtColor = new THREE.Color('#8fb367');
 const patchNoiseFreq = 0.04;
 
-function TerrainChunkComponent({ noise2D, chunkX, chunkZ }: TerrainChunkProps) {
-    const originX = chunkX * CHUNK_SIZE;
-    const originZ = chunkZ * CHUNK_SIZE;
+function TerrainChunkComponent({
+    seed,
+    chunkX,
+    chunkZ,
+    noise2D,
+}: TerrainChunkProps) {
+    const { getTerrainHeight } = useNoise();
+    const { CHUNK_SIZE, CHUNK_SEGMENTS } = useChunk();
+
+    const { originX, originZ } = useMemo(
+        () => ({
+            originX: chunkX * CHUNK_SIZE,
+            originZ: chunkZ * CHUNK_SIZE,
+        }),
+        [chunkX, chunkZ, CHUNK_SIZE],
+    );
 
     const { geometry } = useMemo(() => {
         const geo = new THREE.PlaneGeometry(
@@ -61,11 +74,12 @@ function TerrainChunkComponent({ noise2D, chunkX, chunkZ }: TerrainChunkProps) {
         geo.computeVertexNormals();
 
         return { geometry: geo };
-    }, [noise2D, originX, originZ]);
+    }, [seed, noise2D, originX, originZ, getTerrainHeight]);
 
     return (
         <>
             <RigidBody
+                key={`${seed}-${originX}-${originZ}-${geometry.uuid}`}
                 type="fixed"
                 colliders="trimesh"
                 position={[

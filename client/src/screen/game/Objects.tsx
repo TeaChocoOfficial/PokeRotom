@@ -20,7 +20,7 @@ export default function Objects({
 
     return (
         <Suspense fallback={<PhysicsLoader />}>
-            <Physics gravity={[0, -20, 0]} debug={debug}>
+            <Physics gravity={[0, -50, 0]} debug={debug}>
                 <Trees seed={seed} />
                 <Terrain seed={seed} />
                 <Player debug={debug} />

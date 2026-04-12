@@ -11,6 +11,7 @@ export enum Controls {
     forward = 'forward',
     backward = 'backward',
     shift = 'shift',
+    jump = 'jump',
 }
 
 export function KeyBoardProvider({ children }: { children: React.ReactNode }) {
@@ -21,6 +22,7 @@ export function KeyBoardProvider({ children }: { children: React.ReactNode }) {
             { name: Controls.forward, keys: ['ArrowUp', 'KeyW'] },
             { name: Controls.backward, keys: ['ArrowDown', 'KeyS'] },
             { name: Controls.shift, keys: ['ShiftLeft', 'ShiftRight'] },
+            { name: Controls.jump, keys: ['Space'] },
         ],
         [],
     );

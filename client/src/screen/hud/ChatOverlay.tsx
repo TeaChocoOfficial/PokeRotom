@@ -9,10 +9,33 @@ export default function ChatOverlay() {
     const { t } = useTranslation();
     const [message, setMessage] = useState('');
     const inputRef = useRef<HTMLInputElement>(null);
+    const overlayRef = useRef<HTMLDivElement>(null);
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const { isChatOpen, setChatOpen, toggleChatOpen, setChatFocused } =
         useGameStore();
     const { socket, chatMessages, sendChatMessage } = useSocketStore();
+    const [unreadCount, setUnreadCount] = useState(0);
+    const prevMessagesLength = useRef(chatMessages.length);
+
+    useEffect(() => {
+        if (!isChatOpen) {
+            const diff = chatMessages.length - prevMessagesLength.current;
+            if (diff > 0) {
+                // Filter out messages that were sent by our own client
+                const newMessages = chatMessages.slice(
+                    prevMessagesLength.current,
+                );
+                const unreadFromOthers = newMessages.filter(
+                    (msg) => msg.sender !== socket?.id,
+                ).length;
+                if (unreadFromOthers > 0)
+                    setUnreadCount((prev) => prev + unreadFromOthers);
+            }
+        } else {
+            setUnreadCount(0);
+        }
+        prevMessagesLength.current = chatMessages.length;
+    }, [chatMessages, isChatOpen, socket?.id]);
 
     useEffect(() => {
         const handleKeyDown = (event: KeyboardEvent) => {
@@ -37,10 +60,31 @@ export default function ChatOverlay() {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     }, [chatMessages]);
 
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent | TouchEvent) => {
+            if (
+                overlayRef.current &&
+                !overlayRef.current.contains(event.target as Node)
+            ) {
+                setChatOpen(false);
+            }
+        };
+
+        if (isChatOpen) {
+            document.addEventListener('mousedown', handleClickOutside);
+            document.addEventListener('touchstart', handleClickOutside, {
+                passive: true,
+            });
+        }
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+            document.removeEventListener('touchstart', handleClickOutside);
+        };
+    }, [isChatOpen, setChatOpen]);
+
     const handleSend = () => {
         if (!message.trim()) return;
         sendChatMessage(message.trim(), socket?.id || 'Player');
-        setChatOpen(false);
         setMessage('');
     };
 
@@ -55,39 +99,52 @@ export default function ChatOverlay() {
 
     return (
         <div
-            className="absolute bottom-4 right-4 w-[calc(100%-2rem)] max-w-[320px] pointer-events-auto flex flex-col items-end gap-2"
-            style={{ maxHeight: '50vh' }}
+            ref={overlayRef}
+            className="absolute bottom-4 left-4 w-[calc(100%-2rem)] max-w-[360px] pointer-events-none flex flex-col-reverse items-start gap-2"
+            style={{ zIndex: 50 }}
         >
             {/* Toggle Button */}
             <button
                 onClick={() => toggleChatOpen()}
-                className="flex items-center gap-2 px-4 py-2.5 rounded-full text-xs font-bold shadow-lg transition-transform hover:scale-105 active:scale-95 cursor-pointer"
+                className="pointer-events-auto relative flex items-center justify-center w-12 h-12 rounded-full shadow-lg transition-transform hover:scale-105 active:scale-95 cursor-pointer backdrop-blur-md"
                 style={{
-                    background: 'var(--primary)',
+                    background: isChatOpen
+                        ? 'var(--primary)'
+                        : 'rgba(0,0,0,0.5)',
                     color: '#fff',
-                    backdropFilter: 'blur(8px)',
                     boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
+                    border: '1px solid rgba(255,255,255,0.1)',
+                    fontSize: '1.25rem',
                 }}
             >
-                💬 {t('chat.open')}
+                💬
+                {unreadCount > 0 && !isChatOpen && (
+                    <span className="absolute top-0 right-0 flex h-3.5 w-3.5 translate-x-[-10%] translate-y-[10%]">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                        <span className="relative inline-flex rounded-full h-3.5 w-3.5 bg-red-500 border border-[rgba(0,0,0,0.5)] shadow-[0_0_8px_rgba(239,68,68,0.8)]"></span>
+                    </span>
+                )}
             </button>
 
-            <div className="w-full flex flex-col">
+            {/* Chat Content */}
+            <div
+                className={`rounded-2xl pointer-events-auto w-full flex-col transition-all duration-300 origin-bottom overflow-hidden border-[rgba(255,255,255,0.05)] ${isChatOpen ? 'flex scale-y-100 opacity-100' : 'hidden scale-y-0 opacity-0'}`}
+            >
                 {/* Messages */}
                 <div
-                    className={`${isChatOpen ? 'rounded-t-xl' : 'rounded-xl'} overflow-y-auto px-3 py-2 flex flex-col gap-1`}
+                    className={`overflow-y-auto overflow-x-hidden px-4 py-3 flex flex-col gap-1.5 max-h-[30vh] ${
+                        chatMessages.length === 0 ? 'justify-center' : ''
+                    }`}
                     style={{
-                        background: 'rgba(0,0,0,0.5)',
-                        backdropFilter: 'blur(8px)',
-                        maxHeight: '200px',
-                        opacity: isChatOpen ? 1 : 0.5,
-                        transition: 'opacity 0.3s, border-radius 0.3s',
+                        backdropFilter: 'blur(12px)',
+                        background: 'rgba(0,0,0,0.6)',
+                        border: '1px solid rgba(255,255,255,0.05)',
                     }}
                 >
                     {chatMessages.length === 0 && (
                         <div
-                            className="text-xs text-center py-2"
-                            style={{ color: '#64748b' }}
+                            className="text-xs text-center py-2 italic font-medium"
+                            style={{ color: '#94a3b8' }}
                         >
                             {t('chat.placeholder')}
                         </div>
@@ -95,15 +152,16 @@ export default function ChatOverlay() {
                     {chatMessages.map((msg, index) => (
                         <div
                             key={index}
-                            className="text-xs"
+                            className="text-xs leading-relaxed wrap-break-word whitespace-pre-wrap"
                             style={{
-                                color: msg.system ? '#fbbf24' : '#e2e8f0',
+                                color: msg.system ? '#fbbf24' : '#f8fafc',
+                                textShadow: '0 1px 2px rgba(0,0,0,0.5)',
                             }}
                         >
                             {!msg.system && (
                                 <span
-                                    className="font-bold mr-1"
-                                    style={{ color: '#fb923c' }}
+                                    className="font-bold mr-1.5"
+                                    style={{ color: 'var(--primary-400)' }}
                                 >
                                     {msg.sender}:
                                 </span>
@@ -117,29 +175,25 @@ export default function ChatOverlay() {
                 {/* Input */}
                 {isChatOpen && (
                     <div
-                        className="flex rounded-b-xl overflow-hidden"
+                        className="flex overflow-hidden shadow-xl border border-t-0 border-[rgba(255,255,255,0.05)]"
                         style={{
-                            background: 'rgba(0,0,0,0.7)',
-                            borderTop: '1px solid rgba(255,255,255,0.1)',
+                            background: 'rgba(0,0,0,0.8)',
+                            backdropFilter: 'blur(16px)',
                         }}
                     >
                         <input
                             ref={inputRef}
                             type="text"
                             value={message}
-                            onChange={(event) => setMessage(event.target.value)}
+                            maxLength={255}
                             onKeyDown={handleKeyDown}
-                            className="flex-1 px-3 py-2 text-base md:text-xs bg-transparent outline-none"
-                            style={{ color: '#fff' }}
+                            onChange={(event) => setMessage(event.target.value)}
+                            className="flex-1 px-4 py-3 text-[16px] md:text-sm bg-transparent outline-none text-white placeholder-slate-400"
                             placeholder={t('chat.placeholder')}
                         />
                         <button
-                            className="px-4 py-2 text-xs font-bold transition-colors cursor-pointer"
-                            style={{
-                                background: 'var(--primary)',
-                                color: '#fff',
-                            }}
                             onClick={handleSend}
+                            className="px-5 py-3 text-sm font-black uppercase tracking-wider transition-colors cursor-pointer hover:bg-primary-600 bg-primary text-white"
                         >
                             {t('chat.send')}
                         </button>

@@ -7,7 +7,8 @@ import { useKeyboardControls } from '@react-three/drei';
 /** @description Hook จัดการ Input ของผู้เล่น โดยใช้ KeyboardControls จาก drei */
 export function usePlayerInput() {
     const [, get] = useKeyboardControls<Controls>();
-    const { isChatFocused, joystick } = useGameStore();
+    const { isChatFocused, joystick, isMobileRunning, isMobileJumping } =
+        useGameStore();
 
     /** @description สร้าง Proxy เพื่อรักษาโครงสร้าง keysRef.current เดิม */
     const keys = useMemo(
@@ -15,6 +16,7 @@ export function usePlayerInput() {
             get current() {
                 if (isChatFocused)
                     return {
+                        jump: false,
                         left: false,
                         right: false,
                         shift: false,
@@ -24,15 +26,16 @@ export function usePlayerInput() {
 
                 const keyboard = get();
                 return {
+                    jump: keyboard.jump || isMobileJumping,
+                    shift: keyboard.shift || isMobileRunning,
                     left: keyboard.left || joystick.x < -0.1,
                     right: keyboard.right || joystick.x > 0.1,
                     forward: keyboard.forward || joystick.y < -0.1,
                     backward: keyboard.backward || joystick.y > 0.1,
-                    shift: keyboard.shift,
                 };
             },
         }),
-        [get, isChatFocused, joystick],
+        [get, isChatFocused, joystick, isMobileRunning, isMobileJumping],
     );
 
     useEffect(() => {

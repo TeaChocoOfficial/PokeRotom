@@ -7,14 +7,11 @@ import {
 } from '@react-three/rapier';
 import * as THREE from 'three';
 import { useMemo } from 'react';
-import { CHUNK_SIZE } from '../terrain/chunk';
+import useNoise from '../hooks/noise';
+import useChunk from '../hooks/chunk';
 import { useGameStore } from '$/stores/gameStore';
-import { getTerrainHeight } from '../terrain/Terrain';
-import { simplex2, createSeededRng } from '../terrain/noise';
 import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 
-const RENDER_DISTANCE = 2;
-const FOREST_DENSITY = 10;
 const woodColor = '#6e4e4e';
 const leafColor = '#84aa55';
 
@@ -24,8 +21,10 @@ export type InstancedTreeProps = RigidBodyProps & {
 
 export default function Trees({ seed }: { seed: string }) {
     const { chunk } = useGameStore();
+    const { simplex2, createSeededRng, getTerrainHeight } = useNoise();
+    const { RENDER_DISTANCE, CHUNK_SIZE, FOREST_DENSITY } = useChunk();
 
-    const noise2D = useMemo(() => simplex2(seed), [seed]);
+    const noise2D = useMemo(() => simplex2(seed), [seed, simplex2]);
 
     const mergedGeo = useMemo(() => {
         const cleanGeo = (geo: THREE.BufferGeometry) => {
@@ -80,8 +79,8 @@ export default function Trees({ seed }: { seed: string }) {
                 );
 
                 for (let index = 0; index < FOREST_DENSITY; index++) {
-                    const localX = (seededRng() - 0.5) * CHUNK_SIZE;
-                    const localZ = (seededRng() - 0.5) * CHUNK_SIZE;
+                    const localX = seededRng() * CHUNK_SIZE;
+                    const localZ = seededRng() * CHUNK_SIZE;
                     const rotateY = seededRng() * Math.PI * 2;
 
                     const worldX = chunkX * CHUNK_SIZE + localX;
@@ -111,9 +110,17 @@ export default function Trees({ seed }: { seed: string }) {
             }
         }
         return items;
-    }, [chunk, seed, noise2D]);
+    }, [
+        chunk,
+        seed,
+        noise2D,
+        createSeededRng,
+        getTerrainHeight,
+        RENDER_DISTANCE,
+        CHUNK_SIZE,
+    ]);
 
-    const key = `trees_${seed}-${chunk.x}-${chunk.z}-${instances.length}`;
+    const key = `trees_${seed}-${chunk.x}-${chunk.z}-${instances.length}-${mergedGeo.uuid}`;
 
     return (
         <InstancedRigidBodies

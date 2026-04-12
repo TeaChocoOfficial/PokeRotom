@@ -20,14 +20,19 @@ interface GameState {
     isMenuOpen: boolean;
     isChatFocused: boolean;
     isSettingsOpen: boolean;
+    isMobileRunning: boolean;
+    isMobileJumping: boolean;
     joystick: { x: number; y: number };
+    toggleChatOpen: () => void;
+    toggleSettingsOpen: () => void;
     setFps: (fps: number) => void;
     setTime: (time: number) => void;
     addTime: (time: number) => void;
     setChatOpen: (open: boolean) => void;
     setMenuOpen: (open: boolean) => void;
-    toggleChatOpen: () => void;
     setSettingsOpen: (open: boolean) => void;
+    setMobileRunning: (running: boolean) => void;
+    setMobileJumping: (jumping: boolean) => void;
     setChatFocused: (focused: boolean) => void;
     setPlayerChunk: (chunk: THREE.Vector3) => void;
     setMovementState: (state: MovementState) => void;
@@ -51,15 +56,21 @@ export const useGameStore = create<GameState>()((set) => ({
     isMenuOpen: false,
     isChatFocused: false,
     isSettingsOpen: false,
+    isMobileRunning: false,
+    isMobileJumping: false,
     joystick: { x: 0, y: 0 },
+    toggleChatOpen: () => set((state) => ({ isChatOpen: !state.isChatOpen })),
+    toggleSettingsOpen: () =>
+        set((state) => ({ isSettingsOpen: !state.isSettingsOpen })),
     setFps: (fps) => set({ fps }),
     setTime: (time) => set({ time }),
     addTime: (time) => set((state) => ({ time: state.time + time })),
     setChatOpen: (isChatOpen) => set({ isChatOpen }),
     setMenuOpen: (isMenuOpen) => set({ isMenuOpen }),
-    toggleChatOpen: () => set((state) => ({ isChatOpen: !state.isChatOpen })),
     setChatFocused: (isChatFocused) => set({ isChatFocused }),
     setSettingsOpen: (isSettingsOpen) => set({ isSettingsOpen }),
+    setMobileRunning: (isMobileRunning) => set({ isMobileRunning }),
+    setMobileJumping: (isMobileJumping) => set({ isMobileJumping }),
     setJoystick: (joystick) => set({ joystick }),
     setPlayerChunk: (chunk) =>
         set((state) => {

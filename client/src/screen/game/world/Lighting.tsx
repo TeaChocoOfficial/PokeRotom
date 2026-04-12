@@ -11,7 +11,7 @@ export default function Lighting() {
             value: 1500,
             min: 0,
             max: 2400,
-            step: 0.1,
+            step: 50,
         },
     });
 
