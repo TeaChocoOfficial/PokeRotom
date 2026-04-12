@@ -14,7 +14,7 @@ export default function Objects({
     debug,
 }: {
     seed: string;
-    debug: boolean;
+    debug?: boolean;
 }) {
     const { remotePlayers, wildPokemon } = useSocketStore();
 

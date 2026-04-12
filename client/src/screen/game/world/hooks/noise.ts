@@ -17,8 +17,31 @@ export type UseNoise = {
     getTerrainHeight: GetTerrainHeight;
 };
 
-// terrainPresets.ts
-export const terrainPresets = {
+export type TerrainPreset = {
+    scale: number;
+    amplitude: number;
+    detailScale: number;
+    detailAmplitude: number;
+    microScale: number;
+    microAmplitude: number;
+    offsetY: number;
+};
+
+export type TerrainPresetKeys =
+    | 'smooth'
+    | 'rollingHills'
+    | 'mountain'
+    | 'cratered'
+    | 'island'
+    | 'desert'
+    | 'denseForest'
+    | 'cliff'
+    | 'swamp'
+    | 'default';
+
+export type TerrainConfig = Record<TerrainPresetKeys, TerrainPreset>;
+
+export const terrainPresets: TerrainConfig = {
     // เรียบ สวยงาม เหมือนทุ่งหญ้า
     smooth: {
         scale: 0.01,
@@ -130,10 +153,6 @@ export const terrainPresets = {
     },
 } as const;
 
-export type TerrainPreset = keyof typeof terrainPresets;
-export type TerrainConfig =
-    (typeof terrainPresets)[keyof typeof terrainPresets];
-
 export default function useNoise(): UseNoise {
     // const {
     //     scale,
@@ -168,7 +187,7 @@ export default function useNoise(): UseNoise {
         microScale,
         microAmplitude,
         offsetY,
-    } = useMemo(() => terrainPresets[set], [set]);
+    } = useMemo(() => terrainPresets[set as TerrainPresetKeys], [set]);
 
     /** สร้าง mulberry32 RNG จาก seed string */
     const createSeededRng: CreateSeededRng = useCallback(
