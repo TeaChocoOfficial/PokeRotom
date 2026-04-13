@@ -93,7 +93,7 @@ export default function Water({ seed }: { seed: string }) {
             const f2 = k2 * (worldX * 0.857 + worldY * 0.514 - c2 * time * 0.8);
 
             positions[index + 2] =
-                (Math.sin(f1) + Math.sin(f2) * 0.5) * (waveHeight * 5);
+                (Math.sin(f1) + Math.sin(f2) * 0.5) * (waveHeight * 5 * steepness);
         }
         geo.attributes.position.needsUpdate = true;
     });

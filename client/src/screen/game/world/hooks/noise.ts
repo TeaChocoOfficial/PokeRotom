@@ -88,7 +88,7 @@ export default function useNoise(seed?: string): UseNoise {
         [],
     );
 
-    const noise2D = useCallback(createNoise2D(createSeededRng(seed)), [
+    const noise2D = useCallback(createNoise2D(createSeededRng(seed || 'default')), [
         seed,
         createNoise2D,
         createSeededRng,

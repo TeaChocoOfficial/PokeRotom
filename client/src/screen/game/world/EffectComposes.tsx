@@ -9,6 +9,7 @@ import {
     EffectComposer,
 } from '@react-three/postprocessing';
 import { Quality, BaseQuality, useSettingStore } from '$/stores/settingStore';
+import Activity from '$/screen/components/Activity';
 
 /**
  * @description คอมโพเนนต์จัดการระบบ Post-processing
@@ -62,26 +63,28 @@ export default function EffectComposes() {
     return (
         <EffectComposer multisampling={0}>
             {/* Anti-aliasing สำหรับ High/Medium */}
-            {enableSMAA && config.smaa && <SMAA />}
+            <Activity visible={enableSMAA && config.smaa}>
+                <SMAA />
+            </Activity>
 
             {/* แสงฟุ้งเรืองรอง */}
-            {enableBloom && (
+            <Activity visible={enableBloom}>
                 <Bloom
                     intensity={config.bloom.intensity}
                     luminanceThreshold={config.bloom.threshold}
                     mipmapBlur={config.bloom.mipmapBlur}
                 />
-            )}
+            </Activity>
 
             {/* ขอบมืดเสริมอารมณ์หนัง */}
-            {enableVignette && (
+            <Activity visible={enableVignette}>
                 <Vignette eskil={false} offset={0.1} darkness={0.9} />
-            )}
+            </Activity>
 
             {/* Noise เพื่อความดิบของภาพ */}
-            {enableNoise && config.noise.opacity > 0 && (
+            <Activity visible={enableNoise && config.noise.opacity > 0}>
                 <Noise opacity={config.noise.opacity} />
-            )}
+            </Activity>
         </EffectComposer>
     );
 }
