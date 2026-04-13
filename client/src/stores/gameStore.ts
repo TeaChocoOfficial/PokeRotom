@@ -22,6 +22,7 @@ interface GameState {
     isSettingsOpen: boolean;
     isMobileRunning: boolean;
     isMobileJumping: boolean;
+    isPointerLocked: boolean;
     joystick: { x: number; y: number };
     toggleChatOpen: () => void;
     toggleSettingsOpen: () => void;
@@ -36,6 +37,7 @@ interface GameState {
     setChatFocused: (focused: boolean) => void;
     setPlayerChunk: (chunk: THREE.Vector3) => void;
     setMovementState: (state: MovementState) => void;
+    setIsPointerLocked: (locked: boolean) => void;
     setPlayerRotation: (rotation: THREE.Euler) => void;
     setPlayerPosition: (position: THREE.Vector3) => void;
     setPlayerVelocity: (velocity: THREE.Vector3) => void;
@@ -58,6 +60,7 @@ export const useGameStore = create<GameState>()((set) => ({
     isSettingsOpen: false,
     isMobileRunning: false,
     isMobileJumping: false,
+    isPointerLocked: false,
     joystick: { x: 0, y: 0 },
     toggleChatOpen: () => set((state) => ({ isChatOpen: !state.isChatOpen })),
     toggleSettingsOpen: () =>
@@ -71,6 +74,7 @@ export const useGameStore = create<GameState>()((set) => ({
     setSettingsOpen: (isSettingsOpen) => set({ isSettingsOpen }),
     setMobileRunning: (isMobileRunning) => set({ isMobileRunning }),
     setMobileJumping: (isMobileJumping) => set({ isMobileJumping }),
+    setIsPointerLocked: (isPointerLocked) => set({ isPointerLocked }),
     setJoystick: (joystick) => set({ joystick }),
     setPlayerChunk: (chunk) =>
         set((state) => {

@@ -22,7 +22,15 @@
         "dark": "Dark",
         "light": "Light",
         "volume": "Volume",
-        "close": "Close"
+        "close": "Close",
+        "graphics": "Graphics",
+        "quality": "Render Quality",
+        "mirror": "Mirror Quality",
+        "low": "Low",
+        "medium": "Medium",
+        "high": "High",
+        "none": "None",
+        "custom": "Custom"
     },
     "chat": {
         "placeholder": "Type a message...",

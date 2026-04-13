@@ -8,11 +8,13 @@ import FPSCounter from './components/FPSCounter';
 import LoadingScreen from './components/LoadingScreen';
 import { KeyBoardProvider } from './controller/Keyboard';
 import MobileContoller from './controller/MobileContoller';
+import { useSettingStore } from '$/stores/settingStore';
 
 export default function Screen() {
     const { debug } = useControls('game', {
         debug: false,
     });
+    const { powerPreference } = useSettingStore();
 
     return (
         <div className="relative w-dvw h-dvh overflow-hidden">
@@ -22,8 +24,10 @@ export default function Screen() {
                         shadows
                         camera={{ position: [10, 10, 20], fov: 60 }}
                         gl={{
-                            antialias: true,
-                            powerPreference: 'high-performance',
+                            depth: false,
+                            stencil: false,
+                            antialias: false,
+                            powerPreference,
                         }}
                     >
                         <GameScene debug={debug} />

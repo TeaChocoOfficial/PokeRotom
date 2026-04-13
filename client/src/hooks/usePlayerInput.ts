@@ -27,6 +27,7 @@ export function usePlayerInput() {
                 const keyboard = get();
                 return {
                     jump: keyboard.jump || isMobileJumping,
+                    down: keyboard.down,
                     shift: keyboard.shift || isMobileRunning,
                     left: keyboard.left || joystick.x < -0.1,
                     right: keyboard.right || joystick.x > 0.1,

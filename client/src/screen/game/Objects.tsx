@@ -2,6 +2,7 @@
 import { Suspense } from 'react';
 import Player from './player/Player';
 import Trees from './world/tree/Trees';
+import Water from './world/water/Water';
 import Terrain from './world/terrain/Terrain';
 import { Physics } from '@react-three/rapier';
 import OtherPlayer from './player/OtherPlayer';
@@ -21,9 +22,10 @@ export default function Objects({
     return (
         <Suspense fallback={<PhysicsLoader />}>
             <Physics gravity={[0, -50, 0]} debug={debug}>
+                <Water seed={seed} />
                 <Trees seed={seed} />
                 <Terrain seed={seed} />
-                <Player debug={debug} />
+                <Player seed={seed} debug={debug} />
                 {/* Remote Players (From Server) */}
                 {Array.from(remotePlayers.entries()).map(([id, player]) => (
                     <OtherPlayer key={id} player={player} />

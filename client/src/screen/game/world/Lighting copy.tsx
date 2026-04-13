@@ -6,11 +6,26 @@ import { useGameStore } from '$/stores/gameStore';
 import { useEffect, useMemo, useRef } from 'react';
 import { Environment, Sky } from '@react-three/drei';
 import { useFrame, type Vector3 } from '@react-three/fiber';
+import {
+    Bloom,
+    Noise,
+    Vignette,
+    EffectComposer,
+} from '@react-three/postprocessing';
 
 export default function Lighting() {
     const { CHUNK_SIZE } = useChunk();
     const groupRef = useRef<THREE.Group>(null);
     const { time, player, setTime, addTime } = useGameStore();
+
+    /** @description ควบคุม Post-processing ผ่าน Leva */
+    const { enableBloom, bloomIntensity, bloomThreshold, enableVignette } =
+        useControls('postprocessing', {
+            enableBloom: true,
+            bloomIntensity: { value: 1.5, min: 0, max: 10, step: 0.1 },
+            bloomThreshold: { value: 0.9, min: 0, max: 1, step: 0.05 },
+            enableVignette: true,
+        });
 
     useControls('world', {
         daytime: {
@@ -59,7 +74,7 @@ export default function Lighting() {
     useFrame((_, delta) => {
         /** @description อัปเดตเวลาให้เดินไปเรื่อยๆ (2400 หน่วย / 86400 วินาทีใน 1 วัน) */
         addTime(delta * (2400 / 86400));
-
+        console.log(time);
         if (groupRef.current) {
             groupRef.current.position.set(
                 player.position.x,
@@ -109,6 +124,21 @@ export default function Lighting() {
                     intensity={0.5}
                 />
             )}
+
+            {/* Post Processing Effects */}
+            <EffectComposer disableNormalPass>
+                {enableBloom && (
+                    <Bloom
+                        luminanceThreshold={bloomThreshold}
+                        mipmapBlur
+                        intensity={bloomIntensity}
+                    />
+                )}
+                {enableVignette && (
+                    <Vignette eskil={false} offset={0.1} darkness={1.1} />
+                )}
+                <Noise opacity={0.02} />
+            </EffectComposer>
         </group>
     );
 }

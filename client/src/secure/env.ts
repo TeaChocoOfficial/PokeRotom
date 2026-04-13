@@ -11,4 +11,6 @@ const env = {
     API_TOKEN_KEY: String(import.meta.env.VITE_API_TOKEN_KEY) || '',
 } as const;
 
+export const isDev = env.MODE === 'development';
+
 export default env;

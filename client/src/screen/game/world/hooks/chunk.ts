@@ -18,17 +18,18 @@ export default function useChunk() {
             FOREST_DENSITY: 10,
         });
 
-    /** คำนวณว่า chunk ไหนที่ player อยู่ */
+    /** คำนวณว่า chunk ไหนที่ player อยู่ โดยให้ (0,0) อยู่กึ่งกลาง chunk 0 */
     const getPlayerChunk = useCallback(
         (playerPos: THREE.Vector3): THREE.Vector3 => {
             return new THREE.Vector3(
-                Math.floor(playerPos.x / CHUNK_SIZE),
+                Math.round(playerPos.x / CHUNK_SIZE),
                 0,
-                Math.floor(playerPos.z / CHUNK_SIZE),
+                Math.round(playerPos.z / CHUNK_SIZE),
             );
         },
-        [],
+        [CHUNK_SIZE],
     );
+
     return {
         CHUNK_SIZE,
         CHUNK_SEGMENTS,

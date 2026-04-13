@@ -1,193 +1,70 @@
 // -Path: "PokeRotom/client/src/screen/game/world/hooks/noise.ts"
+import {
+    biomePresets,
+    type BiomePreset,
+    type BiomePresetKeys,
+} from '../data/biome';
+import * as THREE from 'three';
 import { useControls } from 'leva';
 import { useCallback, useMemo } from 'react';
+import type { ReactThreeFiber } from '@react-three/fiber';
 import { createNoise2D, type NoiseFunction2D } from 'simplex-noise';
 
 export type Noise2D = ReturnType<typeof createNoise2D>;
 export type Simplex2 = (seed: string) => NoiseFunction2D;
 export type CreateSeededRng = (seed: string, offset?: number) => () => number;
-export type GetTerrainHeight = (
-    noise2D: NoiseFunction2D,
-    worldX: number,
-    worldZ: number,
-) => number;
+export type GetTerrainHeight = (worldX: number, worldZ: number) => number;
 export type UseNoise = {
-    simplex2: Simplex2;
+    noise2D: NoiseFunction2D;
     createSeededRng: CreateSeededRng;
     getTerrainHeight: GetTerrainHeight;
+    getBiomeConfig: (worldX: number, worldZ: number) => BiomePreset;
+    colors: ReactThreeFiber.Color[];
+    patchNoiseFreq: number;
+    segments: number;
 };
 
-export type TerrainPreset = {
-    scale: number;
-    amplitude: number;
-    detailScale: number;
-    detailAmplitude: number;
-    microScale: number;
-    microAmplitude: number;
-    offsetY: number;
-};
-
-export type TerrainPresetKeys =
-    | 'smooth'
-    | 'rollingHills'
-    | 'mountain'
-    | 'cratered'
-    | 'island'
-    | 'desert'
-    | 'denseForest'
-    | 'cliff'
-    | 'swamp'
-    | 'default';
-
-export type TerrainConfig = Record<TerrainPresetKeys, TerrainPreset>;
-
-export const terrainPresets: TerrainConfig = {
-    // เรียบ สวยงาม เหมือนทุ่งหญ้า
-    smooth: {
-        scale: 0.01,
-        amplitude: 3,
-        detailScale: 3,
-        detailAmplitude: 0.5,
-        microScale: 10,
-        microAmplitude: 0.1,
-        offsetY: 0,
+/** พรีโปรเซสสีใน biomePresets ให้เป็น THREE.Color ทั้งหมดเพื่อลดการสร้าง object ใหม่ */
+const parsedBiomePresets = Object.keys(biomePresets).reduce(
+    (acc, key) => {
+        const preset = biomePresets[key as BiomePresetKeys];
+        acc[key as BiomePresetKeys] = {
+            ...preset,
+            threeColors: preset.terrains.colors.map(
+                (clr) => new THREE.Color(clr as string),
+            ),
+            threeTreeColors: preset.trees.color.map(
+                (clr) => new THREE.Color(clr as string),
+            ),
+        };
+        return acc;
     },
+    {} as Record<
+        BiomePresetKeys,
+        (typeof biomePresets)[BiomePresetKeys] & {
+            threeColors: THREE.Color[];
+            threeTreeColors: THREE.Color[];
+        }
+    >,
+);
 
-    // เนินเขาลูกคลื่น เหมาะกับชนบท
-    rollingHills: {
-        scale: 0.02,
-        amplitude: 5,
-        detailScale: 4,
-        detailAmplitude: 1.2,
-        microScale: 12,
-        microAmplitude: 0.3,
-        offsetY: 0,
-    },
+export default function useNoise(seed?: string): UseNoise {
+    const { set, noiseScale, patchNoiseFreq, segments, biomeScale } =
+        useControls('noise', {
+            set: {
+                value: 'auto' as BiomePresetKeys | 'auto',
+                options: ['auto', ...Object.keys(biomePresets)],
+            },
+            noiseScale: { value: 0.005, min: 0.001, max: 0.2, step: 0.001 },
+            biomeScale: { value: 0.0005, min: 0.0001, max: 0.01, step: 0.0001 },
+            patchNoiseFreq: { value: 0.04, min: 0.001, max: 0.2, step: 0.001 },
+            segments: { value: 64, min: 8, max: 128, step: 1 },
+        });
 
-    // ภูเขาสูงชัน เหมาะกับแนวเขา
-    mountain: {
-        scale: 0.015,
-        amplitude: 12,
-        detailScale: 3,
-        detailAmplitude: 3,
-        microScale: 8,
-        microAmplitude: 0.8,
-        offsetY: -2,
-    },
-
-    // ขรุขระ เหมือนพื้นผิวดวงจันทร์
-    cratered: {
-        scale: 0.03,
-        amplitude: 4,
-        detailScale: 8,
-        detailAmplitude: 2,
-        microScale: 20,
-        microAmplitude: 0.5,
-        offsetY: 0,
-    },
-
-    // เกาะ/หมู่เกาะ (ต้องใช้ mask เพิ่ม)
-    island: {
-        scale: 0.025,
-        amplitude: 8,
-        detailScale: 5,
-        detailAmplitude: 1.5,
-        microScale: 15,
-        microAmplitude: 0.2,
-        offsetY: -3,
-    },
-
-    // ทะเลทราย + เนินทราย
-    desert: {
-        scale: 0.008,
-        amplitude: 2,
-        detailScale: 6,
-        detailAmplitude: 0.8,
-        microScale: 25,
-        microAmplitude: 0.15,
-        offsetY: 0.5,
-    },
-
-    // ป่าทึบ ภูมิประเทศขรุขระปานกลาง
-    denseForest: {
-        scale: 0.018,
-        amplitude: 6,
-        detailScale: 7,
-        detailAmplitude: 1.8,
-        microScale: 18,
-        microAmplitude: 0.4,
-        offsetY: 0,
-    },
-
-    // หน้าผาสูงชันมาก
-    cliff: {
-        scale: 0.012,
-        amplitude: 15,
-        detailScale: 2,
-        detailAmplitude: 4,
-        microScale: 6,
-        microAmplitude: 1.2,
-        offsetY: -5,
-    },
-
-    // หนองน้ำ/พื้นที่ราบน้ำท่วมถึง
-    swamp: {
-        scale: 0.022,
-        amplitude: 1.5,
-        detailScale: 10,
-        detailAmplitude: 0.3,
-        microScale: 30,
-        microAmplitude: 0.05,
-        offsetY: -1,
-    },
-
-    // เริ่มต้น (ค่า default เดิม)
-    default: {
-        scale: 0.02,
-        amplitude: 5,
-        detailScale: 5,
-        detailAmplitude: 1,
-        microScale: 15,
-        microAmplitude: 0.2,
-        offsetY: 0,
-    },
-} as const;
-
-export default function useNoise(): UseNoise {
-    // const {
-    //     scale,
-    //     amplitude,
-    //     detailScale,
-    //     detailAmplitude,
-    //     microScale,
-    //     microAmplitude,
-    //     offsetY,
-    // } = useControls('noise', {
-    //     scale: { value: 0.02, min: 0.001, max: 0.1, step: 0.001 },
-    //     amplitude: { value: 5, min: 0, max: 50, step: 0.1 },
-    //     detailScale: { value: 5, min: 0.5, max: 20, step: 0.1 },
-    //     detailAmplitude: { value: 1, min: 0, max: 20, step: 0.1 },
-    //     microScale: { value: 15, min: 1, max: 50, step: 0.1 },
-    //     microAmplitude: { value: 0.2, min: 0, max: 5, step: 0.05 },
-    //     offsetY: { value: 0, min: -20, max: 20, step: 0.5 },
-    // });
-
-    const { set } = useControls('noise', {
-        set: {
-            value: 'cliff',
-            options: Object.keys(terrainPresets),
-        },
-    });
-
-    const {
-        scale,
-        amplitude,
-        detailScale,
-        detailAmplitude,
-        microScale,
-        microAmplitude,
-        offsetY,
-    } = useMemo(() => terrainPresets[set as TerrainPresetKeys], [set]);
+    const { colors } = useMemo(() => {
+        if (set === 'auto') return biomePresets.default.terrains;
+        return biomePresets[set as BiomePresetKeys].terrains;
+    }, [set]);
 
     /** สร้าง mulberry32 RNG จาก seed string */
     const createSeededRng: CreateSeededRng = useCallback(
@@ -211,34 +88,136 @@ export default function useNoise(): UseNoise {
         [],
     );
 
-    /** สร้าง noise2D จาก seed (Export ให้ Trees ใช้ร่วมกัน) */
-    const simplex2 = useCallback(
-        (seed: string) => createNoise2D(createSeededRng(seed)),
-        [createNoise2D, createSeededRng],
+    const noise2D = useCallback(createNoise2D(createSeededRng(seed)), [
+        seed,
+        createNoise2D,
+        createSeededRng,
+    ]);
+
+    const biomeNoise2D = useCallback(
+        createNoise2D(createSeededRng(seed || 'biome-seed')),
+        [createSeededRng, seed],
+    );
+
+    const getBiomeConfig = useCallback(
+        (worldX: number, worldZ: number): BiomePreset => {
+            if (set !== 'auto') return biomePresets[set as BiomePresetKeys];
+
+            const n = biomeNoise2D(worldX * biomeScale, worldZ * biomeScale);
+            const keys = Object.keys(biomePresets) as BiomePresetKeys[];
+            const normalized = (n + 1) / 2; // 0 to 1
+
+            // คำนวณ Index แบบทศนิยมเพื่อใช้หา Biome 2 อันที่อยู่ติดกัน
+            const floatIndex = normalized * (keys.length - 1);
+            const index1 = Math.floor(floatIndex);
+            const index2 = Math.min(index1 + 1, keys.length - 1);
+            const t = floatIndex - index1; // ค่าความคืบหน้า 0 (Biome1) ไป 1 (Biome2)
+
+            const b1 = parsedBiomePresets[keys[index1]];
+            const b2 = parsedBiomePresets[keys[index2]];
+
+            // ฟังก์ชันช่วย Lerp ตัวเลข
+            const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
+
+            // ผสมผสานค่า Config ของ 2 Biome เข้าด้วยกันให้ Smooth
+            // Note: ส่งคืนเฉพาะค่าดิบที่จำเป็นเพื่อลด CPU ในการสร้าง object ใหญ่ๆ ใน Loop พื้นที่
+
+            // ใช้ Biome ที่ค่อนข้างเด่นกว่าสำหรับข้อมูลพรรณไม้ เพื่อลดปัญหา RNG Shift (สีกะพริบ)
+            const dominantBiome = t < 0.5 ? b1 : b2;
+
+            return {
+                terrains: {
+                    amplitude: lerp(
+                        b1.terrains.amplitude,
+                        b2.terrains.amplitude,
+                        t,
+                    ),
+                    detailScale: lerp(
+                        b1.terrains.detailScale,
+                        b2.terrains.detailScale,
+                        t,
+                    ),
+                    detailAmplitude: lerp(
+                        b1.terrains.detailAmplitude,
+                        b2.terrains.detailAmplitude,
+                        t,
+                    ),
+                    microScale: lerp(
+                        b1.terrains.microScale,
+                        b2.terrains.microScale,
+                        t,
+                    ),
+                    microAmplitude: lerp(
+                        b1.terrains.microAmplitude,
+                        b2.terrains.microAmplitude,
+                        t,
+                    ),
+                    colors: b1.threeColors.map((col1, index) => {
+                        const col2 = b2.threeColors[index] || col1;
+                        return col1.clone().lerp(col2, t).getHex();
+                    }),
+                },
+                trees: {
+                    density: dominantBiome.trees.density,
+                    minHeight: dominantBiome.trees.minHeight,
+                    maxSlope: dominantBiome.trees.maxSlope,
+                    scale: dominantBiome.trees.scale,
+                    weights: dominantBiome.trees.weights,
+                    color: dominantBiome.threeTreeColors.map((clr) =>
+                        clr.getHex(),
+                    ),
+                },
+                water: {
+                    color: new THREE.Color(b1.water.color as string)
+                        .clone()
+                        .lerp(
+                            new THREE.Color(b2.water.color as string),
+                            t,
+                        )
+                        .getHex(),
+                    opacity: lerp(b1.water.opacity, b2.water.opacity, t),
+                },
+            };
+        },
+        [set, biomeNoise2D, biomeScale],
     );
 
     /** คำนวณความสูงของพื้นจาก noise (ใช้ world position) */
     const getTerrainHeight: GetTerrainHeight = useCallback(
-        (noise2D, worldX, worldZ) =>
-            noise2D(worldX * scale, worldZ * scale) * amplitude +
-            noise2D(
-                worldX * scale * detailScale,
-                worldZ * scale * detailScale,
-            ) *
-                detailAmplitude +
-            noise2D(worldX * scale * microScale, worldZ * scale * microScale) *
-                microAmplitude +
-            offsetY,
-        [
-            scale,
-            amplitude,
-            detailScale,
-            detailAmplitude,
-            microScale,
-            microAmplitude,
-            offsetY,
-        ],
+        (worldX, worldZ) => {
+            const { terrains } = getBiomeConfig(worldX, worldZ);
+            const {
+                amplitude,
+                detailScale,
+                detailAmplitude,
+                microScale,
+                microAmplitude,
+            } = terrains;
+
+            return (
+                noise2D(worldX * noiseScale, worldZ * noiseScale) * amplitude +
+                noise2D(
+                    worldX * noiseScale * detailScale,
+                    worldZ * noiseScale * detailScale,
+                ) *
+                    detailAmplitude +
+                noise2D(
+                    worldX * noiseScale * microScale,
+                    worldZ * noiseScale * microScale,
+                ) *
+                    microAmplitude
+            );
+        },
+        [noiseScale, noise2D, getBiomeConfig],
     );
 
-    return { simplex2, createSeededRng, getTerrainHeight };
+    return {
+        colors,
+        segments,
+        noise2D,
+        getBiomeConfig,
+        createSeededRng,
+        getTerrainHeight,
+        patchNoiseFreq,
+    };
 }

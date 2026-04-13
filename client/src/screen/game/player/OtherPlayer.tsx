@@ -1,10 +1,10 @@
 // -Path: "PokeRotom/client/src/screen/game/player/OtherPlayer.tsx"
 'use client';
 import * as THREE from 'three';
-import PlayerModel from './PlayerModel';
 import { useRef, useEffect } from 'react';
 import BoardText from '../entity/BoardText';
 import { useFrame } from '@react-three/fiber';
+import PlayerModel from '../entity/PlayerModel';
 import type { RemotePlayer } from '$/stores/socketStore';
 import type { RapierRigidBody } from '@react-three/rapier';
 import { RigidBody, CapsuleCollider } from '@react-three/rapier';

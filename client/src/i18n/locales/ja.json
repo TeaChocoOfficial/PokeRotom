@@ -22,7 +22,15 @@
         "dark": "ダーク",
         "light": "ライト",
         "volume": "音量",
-        "close": "閉じる"
+        "close": "閉じる",
+        "graphics": "グラフィック",
+        "quality": "レンダリング品質",
+        "mirror": "反射の品質",
+        "low": "低",
+        "medium": "中",
+        "high": "高",
+        "none": "なし",
+        "custom": "カスタム"
     },
     "chat": {
         "placeholder": "メッセージを入力...",
