@@ -1,10 +1,10 @@
 // -Path: "PokeRotom/client/src/screen/controller/MobileContoller.tsx"
 import { useRef, useCallback } from 'react';
-import Joystick from '../components/Joystick';
+import Joystick from '../../components/controller/Joystick';
 import { useIsMobile } from '$/hooks/useIsMobile';
 import { useGameStore } from '$/stores/gameStore';
 import { useCameraStore } from '$/stores/cameraStore';
-import ActionButton from '../components/ActionButton';
+import ActionButton from '../../components/controller/ActionButton';
 
 export default function MobileContoller() {
     const isMobile = useIsMobile();
@@ -64,7 +64,7 @@ export default function MobileContoller() {
             <div
                 onTouchEnd={onTouchEnd}
                 onTouchMove={onTouchMove}
-                className="absolute inset-y-0 right-0 w-1/2 z-100 bg-red"
+                className="absolute inset-y-0 right-0 w-1/2 bg-red"
             />
 
             {/* Bottom-left: Joystick */}

@@ -1,6 +1,6 @@
 // -Path: "PokeRotom/client/src/screen/hud/settings/SettingsPanel.tsx"
-import Select from '../../components/Select';
-import Switch from '../../components/Switch';
+import Select from '../../../components/custom/Select';
+import Switch from '../../../components/custom/Switch';
 import { useTranslation } from 'react-i18next';
 import { useGameStore } from '$/stores/gameStore';
 import { useThemeStore } from '$/stores/themeStore';

@@ -2,7 +2,7 @@
 import './index.css';
 import App from './App';
 import { createRoot } from 'react-dom/client';
-import Providers from './components/Providers';
+import Providers from './components/layout/Providers';
 
 document.addEventListener(
     'touchstart',

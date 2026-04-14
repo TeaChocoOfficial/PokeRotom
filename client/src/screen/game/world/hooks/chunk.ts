@@ -2,6 +2,7 @@
 import * as THREE from 'three';
 import { useControls } from 'leva';
 import { useCallback } from 'react';
+import { useSettingStore } from '$/stores/settingStore';
 
 export type ChunkType = {
     key: string;
@@ -10,13 +11,15 @@ export type ChunkType = {
 };
 
 export default function useChunk() {
-    const { CHUNK_SIZE, CHUNK_SEGMENTS, RENDER_DISTANCE, FOREST_DENSITY } =
-        useControls('chunk', {
+    const { renderDistance } = useSettingStore();
+    const { CHUNK_SIZE, CHUNK_SEGMENTS, FOREST_DENSITY } = useControls(
+        'chunk',
+        {
             CHUNK_SIZE: 64,
             CHUNK_SEGMENTS: 32,
-            RENDER_DISTANCE: 2,
             FOREST_DENSITY: 10,
-        });
+        },
+    );
 
     /** คำนวณว่า chunk ไหนที่ player อยู่ โดยให้ (0,0) อยู่กึ่งกลาง chunk 0 */
     const getPlayerChunk = useCallback(
@@ -32,8 +35,8 @@ export default function useChunk() {
 
     return {
         CHUNK_SIZE,
+        renderDistance,
         CHUNK_SEGMENTS,
-        RENDER_DISTANCE,
         FOREST_DENSITY,
         getPlayerChunk,
     };

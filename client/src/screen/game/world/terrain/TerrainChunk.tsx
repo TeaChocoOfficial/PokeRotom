@@ -2,18 +2,20 @@
 import * as THREE from 'three';
 import { createNoise2D } from 'simplex-noise';
 import { RigidBody } from '@react-three/rapier';
-import { memo, useState, useEffect } from 'react';
+import { memo, useState, useEffect, Suspense } from 'react';
+import Solidify from '$/screen/model/Solidify';
+import type { BiomePreset } from '../data/biome';
 
 interface TerrainChunkProps {
     seed: string;
     chunkX: number;
     chunkZ: number;
-    noise2D: ReturnType<typeof createNoise2D>;
-    getTerrainHeight: (x: number, z: number) => number;
-    getBiomeConfig: (x: number, z: number) => any;
-    patchNoiseFreq: number;
     segments: number;
     CHUNK_SIZE: number;
+    patchNoiseFreq: number;
+    getTerrainHeight: (x: number, z: number) => number;
+    getBiomeConfig: (x: number, z: number) => BiomePreset;
+    noise2D: ReturnType<typeof createNoise2D>;
 }
 
 function TerrainChunkComponent({
@@ -36,6 +38,8 @@ function TerrainChunkComponent({
     useEffect(() => {
         let isCancelled = false;
 
+        /** @description Stagger การเจนเพื่อไม่ให้ทุก Chunk แย่ง CPU พร้อมกัน */
+        const staggerDelay = Math.random() * 300;
         const timer = setTimeout(() => {
             if (isCancelled) return;
 
@@ -64,8 +68,8 @@ function TerrainChunkComponent({
                 positions[index + 1] = height;
 
                 const biome = getBiomeConfig(worldX, worldZ);
-                biomeColor1.set(biome.terrains.colors[0]);
-                biomeColor2.set(biome.terrains.colors[1]);
+                biomeColor1.setHex(biome.terrains.colors[0] as number);
+                biomeColor2.setHex(biome.terrains.colors[1] as number);
 
                 const patchNoise = noise2D(
                     worldX * patchNoiseFreq,
@@ -86,10 +90,8 @@ function TerrainChunkComponent({
             geo.setAttribute('color', new THREE.BufferAttribute(colorArray, 3));
             geo.computeVertexNormals();
 
-            if (!isCancelled) {
-                setGeometry(geo);
-            }
-        }, 0);
+            if (!isCancelled) setGeometry(geo);
+        }, staggerDelay);
 
         return () => {
             isCancelled = true;
@@ -110,16 +112,19 @@ function TerrainChunkComponent({
     if (!geometry) return null;
 
     return (
-        <RigidBody
-            key={`${seed}-${centerX}-${centerZ}-${geometry.uuid}`}
-            type="fixed"
-            colliders="trimesh"
-            position={[centerX, 0, centerZ]}
-        >
-            <mesh castShadow receiveShadow geometry={geometry}>
-                <meshToonMaterial vertexColors />
-            </mesh>
-        </RigidBody>
+        <Suspense fallback={null}>
+            <RigidBody
+                key={`${seed}-${centerX}-${centerZ}-${geometry.uuid}`}
+                type="fixed"
+                colliders="trimesh"
+                position={[centerX, 0, centerZ]}
+            >
+                <mesh castShadow receiveShadow geometry={geometry}>
+                    <meshToonMaterial vertexColors />
+                    <Solidify thickness={0.04} />
+                </mesh>
+            </RigidBody>
+        </Suspense>
     );
 }
 

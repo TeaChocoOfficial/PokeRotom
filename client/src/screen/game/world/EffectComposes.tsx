@@ -9,7 +9,7 @@ import {
     EffectComposer,
 } from '@react-three/postprocessing';
 import { Quality, BaseQuality, useSettingStore } from '$/stores/settingStore';
-import Activity from '$/screen/components/Activity';
+import Activity from '$/components/Activity';
 
 /**
  * @description คอมโพเนนต์จัดการระบบ Post-processing

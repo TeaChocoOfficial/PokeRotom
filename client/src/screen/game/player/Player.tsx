@@ -1,65 +1,72 @@
 // -Path: "PokeRotom/client/src/screen/game/player/Player.tsx"
 import * as THREE from 'three';
-import { button, useControls } from 'leva';
 import useChunk from '../world/hooks/chunk';
-import useNoise from '../world/hooks/noise';
+import { button, useControls } from 'leva';
 import PlayerModel from '../entity/PlayerModel';
 import { useGameStore } from '$/stores/gameStore';
 import { useSocketStore } from '$/stores/socketStore';
 import { useCameraStore } from '$/stores/cameraStore';
 import { usePlayerInput } from '$/hooks/usePlayerInput';
 import { useFrame, useThree } from '@react-three/fiber';
-import { useRef, useEffect, useTransition } from 'react';
+import { useRef, useEffect, useTransition, useLayoutEffect } from 'react';
 import type { RapierRigidBody } from '@react-three/rapier';
 import { RigidBody, CapsuleCollider, useRapier } from '@react-three/rapier';
 
-export default function Player({
-    seed,
-    debug,
-}: {
-    seed: string;
-    debug?: boolean;
-}) {
+export default function Player({ debug }: { debug?: boolean }) {
     const {
-        isPointerLocked,
         chunk,
+        isPointerLocked,
         setPlayerChunk,
         setMovementState,
         setPlayerPosition,
         setIsPointerLocked,
     } = useGameStore();
+    const isFlying = useRef(false);
+    const jumpHoldTime = useRef(0);
     const lastEmitTime = useRef(0);
     const keysRef = usePlayerInput();
     const { camera, scene } = useThree();
-    const { getPlayerChunk } = useChunk();
+    const { rapier, world } = useRapier();
     const meshRef = useRef<THREE.Group>(null);
-    const { emitPlayerMove } = useSocketStore();
-    const [_, startTransition] = useTransition();
     const bodyRef = useRef<RapierRigidBody>(null);
+    const { emitPlayerMove } = useSocketStore();
+    const { CHUNK_SIZE, renderDistance, getPlayerChunk } = useChunk();
+    const [_isPending, startTransition] = useTransition();
     const smoothLookAt = useRef(new THREE.Vector3(0, 1.5, 0));
     const smoothCamPos = useRef(new THREE.Vector3(0, 12, 14));
-    const isFlying = useRef(false);
-    const jumpHoldTime = useRef(0);
-    const { yaw, pitch, offset, addRotation, lookOffset, lerpSpeed } =
-        useCameraStore();
-    const { getTerrainHeight } = useNoise(seed);
-    const { rapier, world } = useRapier();
     const rayHelperRef = useRef<THREE.ArrowHelper | null>(null);
+    const { yaw, pitch, offset, lerpSpeed, lookOffset, addRotation } =
+        useCameraStore();
+
+    /** @description จำกัดระยะการมองเห็นให้เหลือแค่ 100 เมตร และใส่หมอกเพื่อให้ขอบการมองเห็นนุ่มนวล */
+    useLayoutEffect(() => {
+        camera.far = renderDistance * CHUNK_SIZE;
+        camera.updateProjectionMatrix();
+
+        // ตั้งค่าหมอกและสีพื้นหลังให้เป็นสีเดียวกัน เพื่อให้วัตถุหายไปในหมอกอย่างสมบูรณ์
+        const fogColor = new THREE.Color('#a0d0ff');
+        scene.fog = new THREE.Fog(
+            fogColor,
+            renderDistance * CHUNK_SIZE - CHUNK_SIZE,
+            renderDistance * CHUNK_SIZE,
+        );
+        scene.background = fogColor;
+    }, [camera, scene, renderDistance]);
 
     const {
         canFly,
+        flySpeed,
         walkSpeed,
         jumpForce,
-        flySpeed,
         shiftSpeed,
         flyBoostSpeed,
     } = useControls('player', {
         canFly: true,
-        walkSpeed: { value: 5, min: 0, max: 100, step: 1 },
         flySpeed: { value: 20, min: 0, max: 100, step: 1 },
-        flyBoostSpeed: { value: 60, min: 0, max: 200, step: 1 },
+        walkSpeed: { value: 5, min: 0, max: 100, step: 1 },
         jumpForce: { value: 20, min: 0, max: 100, step: 1 },
         shiftSpeed: { value: 10, min: 0, max: 100, step: 1 },
+        flyBoostSpeed: { value: 60, min: 0, max: 200, step: 1 },
         reset: button(() => {
             if (bodyRef.current) {
                 bodyRef.current.setTranslation({ x: 0, y: 5, z: 0 }, true);
@@ -105,9 +112,8 @@ export default function Player({
 
         window.addEventListener('mousemove', mouseRotation);
         if (isPointerLocked) document.body.requestPointerLock?.();
-        else if (document.pointerLockElement === document.body) {
+        else if (document.pointerLockElement === document.body)
             document.exitPointerLock?.();
-        }
 
         return () => window.removeEventListener('mousemove', mouseRotation);
     }, [isPointerLocked, addRotation]);
@@ -180,7 +186,8 @@ export default function Player({
                 Math.cos(targetAngle - currentRot),
             );
 
-            const newRotationY = currentRot + diff * speed * 2 * delta;
+            const rotationAlpha = Math.min(1, speed * 2 * delta);
+            const newRotationY = currentRot + diff * rotationAlpha;
             bodyRef.current.setRotation(
                 new THREE.Quaternion().setFromEuler(
                     new THREE.Euler(0, newRotationY, 0, 'YXZ'),
@@ -190,8 +197,9 @@ export default function Player({
         }
 
         /** @description Superman Pose - ถ้านอนลงตอนบินเร็ว (Shift) */
-        const targetMeshRotX = isCurrentlyFlying && keys.shift ? -pitch : 0;
-        const poseMeshRotX = isCurrentlyFlying && keys.shift ? Math.PI / 2 : 0;
+        const isFlyingPose = isCurrentlyFlying && keys.shift && isMoving;
+        const targetMeshRotX = isFlyingPose ? -pitch : 0;
+        const poseMeshRotX = isFlyingPose ? Math.PI / 2 : 0;
         meshRef.current.rotation.x = THREE.MathUtils.lerp(
             meshRef.current.rotation.x,
             targetMeshRotX + poseMeshRotX,
@@ -199,6 +207,17 @@ export default function Player({
         );
 
         const translation = bodyRef.current.translation();
+
+        /** @description ป้องกันพิกัดกลายเป็น NaN (Physics Explosion) */
+        if (
+            !isFinite(translation.x) ||
+            !isFinite(translation.y) ||
+            !isFinite(translation.z)
+        ) {
+            bodyRef.current.setTranslation({ x: 0, y: 10, z: 0 }, true);
+            bodyRef.current.setLinvel({ x: 0, y: 0, z: 0 }, true);
+            return;
+        }
 
         /** @description ตรวจสอบว่ายืนอยู่บนพื้นหรือไม่ (Raycast ลงพื้นระยะ 0.2 หน่วย) */
         const rayOrigin = {
@@ -295,14 +314,36 @@ export default function Player({
             });
         }
 
-        /** @description Ground Guard - ป้องกันการตกทะลุพื้นโดยเช็คความสูง Terrain จริง ณ จุดนั้น */
-        const floorY = getTerrainHeight(translation.x, translation.z);
-        if (translation.y < floorY - 0.5) {
-            bodyRef.current.setTranslation(
-                { x: translation.x, y: floorY + 1.5, z: translation.z },
-                true,
-            );
-            bodyRef.current.setLinvel({ x: 0, y: 0, z: 0 }, true);
+        /** @description Ground Guard - ใช้ Raycast สแกนความสูงจากท้องฟ้าลงมา (ครอบคลุมการตกโลกทุกระยะ) */
+        const guardRayOrigin = { x: translation.x, y: 200, z: translation.z };
+        const guardRayDir = { x: 0, y: -1, z: 0 };
+        const guardRay = new rapier.Ray(guardRayOrigin, guardRayDir);
+        const guardHit = world.castRay(
+            guardRay,
+            400,
+            true,
+            undefined,
+            undefined,
+            undefined,
+            bodyRef.current,
+        );
+
+        if (guardHit) {
+            const distance = guardHit.timeOfImpact;
+            if (typeof distance === 'number' && isFinite(distance)) {
+                const actualFloorY = guardRayOrigin.y - distance;
+                if (translation.y < actualFloorY - 0.5) {
+                    bodyRef.current.setTranslation(
+                        {
+                            x: translation.x,
+                            y: actualFloorY + 1.5,
+                            z: translation.z,
+                        },
+                        true,
+                    );
+                    bodyRef.current.setLinvel({ x: 0, y: 0, z: 0 }, true);
+                }
+            }
         }
 
         /** @description กล้องติดตามตัวละคร (Smooth Follow) - ปิดถ้าอยู่ในโหมด debug เพื่อให้ OrbitControls ทำงานได้ */

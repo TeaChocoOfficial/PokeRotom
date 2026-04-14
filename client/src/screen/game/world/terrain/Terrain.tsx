@@ -1,5 +1,5 @@
 // -Path: "PokeRotom/client/src/screen/game/world/terrain/Terrain.tsx"
-import { useMemo } from 'react';
+import { Suspense, useMemo } from 'react';
 import useNoise from '../hooks/noise';
 import useChunk from '../hooks/chunk';
 import TerrainChunk from './TerrainChunk';
@@ -10,21 +10,20 @@ export default function Terrain({ seed }: { seed: string }) {
     const {
         noise2D,
         segments,
-        patchNoiseFreq,
         getBiomeConfig,
+        patchNoiseFreq,
         getTerrainHeight,
     } = useNoise(seed);
     const { chunk } = useGameStore();
-    const { RENDER_DISTANCE, CHUNK_SIZE } = useChunk();
+    const { CHUNK_SIZE, renderDistance } = useChunk();
 
     /** สร้างรายการ chunk keys ที่ต้อง render รอบ ๆ ตัวผู้เล่น (รูปแบบวงกลม) */
     const visibleChunks = useMemo(() => {
         const chunks: ChunkType[] = [];
-        const distanceSq = RENDER_DISTANCE * RENDER_DISTANCE;
+        const distanceSq = renderDistance * renderDistance;
 
-        for (let dz = -RENDER_DISTANCE; dz <= RENDER_DISTANCE; dz++) {
-            for (let dx = -RENDER_DISTANCE; dx <= RENDER_DISTANCE; dx++) {
-                // เชือระยะทางแบบวงกลม
+        for (let dz = -renderDistance; dz <= renderDistance; dz++) {
+            for (let dx = -renderDistance; dx <= renderDistance; dx++) {
                 if (dx * dx + dz * dz <= distanceSq) {
                     const cx = chunk.x + dx;
                     const cz = chunk.z + dz;
@@ -33,10 +32,10 @@ export default function Terrain({ seed }: { seed: string }) {
             }
         }
         return chunks;
-    }, [chunk, RENDER_DISTANCE]);
+    }, [chunk, renderDistance]);
 
     return (
-        <>
+        <Suspense fallback={null}>
             {visibleChunks.map((chunk) => (
                 <TerrainChunk
                     key={chunk.key}
@@ -51,6 +50,6 @@ export default function Terrain({ seed }: { seed: string }) {
                     CHUNK_SIZE={CHUNK_SIZE}
                 />
             ))}
-        </>
+        </Suspense>
     );
 }

@@ -7,30 +7,34 @@ import { useRef, useMemo } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { useGameStore } from '$/stores/gameStore';
 import { MeshReflectorMaterial } from '@react-three/drei';
-import { Quality, useSettingStore } from '$/stores/settingStore';
+import { FullQuality, Quality, useSettingStore } from '$/stores/settingStore';
 
 /** @description แปลง Quality เป็นค่า resolution สำหรับ reflector */
 function getReflectorConfig(
-    mirrorQuality: Quality,
+    mirrorQuality: FullQuality,
 ): { resolution: number; blur: [number, number] } | null {
     switch (mirrorQuality) {
-        case Quality.LOW:
+        case FullQuality.VERY_LOW:
+            return { resolution: 128, blur: [50, 25] };
+        case FullQuality.LOW:
             return { resolution: 256, blur: [100, 50] };
-        case Quality.MEDIUM:
+        case FullQuality.MEDIUM:
             return { resolution: 512, blur: [200, 100] };
-        case Quality.HIGH:
+        case FullQuality.HIGH:
             return { resolution: 1024, blur: [300, 150] };
+        case FullQuality.VERY_HIGH:
+            return { resolution: 2048, blur: [500, 250] };
         default:
             return null;
     }
 }
 
-export default function Water({ seed }: { seed: string }) {
+export default function Water() {
     const meshRef = useRef<THREE.Mesh>(null);
     const { chunk } = useGameStore();
-    const { getBiomeConfig } = useNoise(seed);
+    const { getBiomeConfig } = useNoise();
     const { mirrorQuality } = useSettingStore();
-    const { CHUNK_SIZE, RENDER_DISTANCE } = useChunk();
+    const { CHUNK_SIZE, renderDistance } = useChunk();
 
     const {
         waterLevel,
@@ -50,8 +54,8 @@ export default function Water({ seed }: { seed: string }) {
 
     /** ขนาดระนาบน้ำ — ครอบคลุมพื้นที่กว้างใหญ่เป็นวงกลม */
     const waterRadius = useMemo(
-        () => (RENDER_DISTANCE * 2 + 1) * CHUNK_SIZE,
-        [RENDER_DISTANCE, CHUNK_SIZE],
+        () => (renderDistance * 2 + 1) * CHUNK_SIZE,
+        [renderDistance, CHUNK_SIZE],
     );
 
     /** ตำแหน่งกลาง snap ตาม chunk ของผู้เล่น */
@@ -93,7 +97,8 @@ export default function Water({ seed }: { seed: string }) {
             const f2 = k2 * (worldX * 0.857 + worldY * 0.514 - c2 * time * 0.8);
 
             positions[index + 2] =
-                (Math.sin(f1) + Math.sin(f2) * 0.5) * (waveHeight * 5 * steepness);
+                (Math.sin(f1) + Math.sin(f2) * 0.5) *
+                (waveHeight * 5 * steepness);
         }
         geo.attributes.position.needsUpdate = true;
     });

@@ -4,7 +4,7 @@ import useChunk from './hooks/chunk';
 import { button, useControls } from 'leva';
 import { useGameStore } from '$/stores/gameStore';
 import { useEffect, useMemo, useRef } from 'react';
-import { Environment, Sky } from '@react-three/drei';
+import { ContactShadows, Environment, Sky } from '@react-three/drei';
 import { useFrame, type Vector3 } from '@react-three/fiber';
 
 export default function Lighting() {
@@ -109,6 +109,15 @@ export default function Lighting() {
                     intensity={0.5}
                 />
             )}
+            {/* เงาพื้นแบบนุ่มนวลเพื่อความ Premium */}
+            <ContactShadows
+                scale={15}
+                opacity={0.4}
+                blur={2.5}
+                far={10}
+                resolution={512}
+                position={[0, 0, 0]}
+            />
         </group>
     );
 }
